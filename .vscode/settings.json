@@ -1,0 +1,25 @@
+{
+    "C_Cpp.errorSquiggles": "disabled",
+    "files.encoding": "gb2312",
+    "files.autoGuessEncoding": true,
+    "files.candidateGuessEncodings": [ "gb2312", "utf8" ],
+    "files.associations": { "*.h": "c", "*.A51": "asm" },
+    "files.exclude": {
+        "**/Objects": true,
+        "**/Listings": true,
+        "**/out_file": true,
+        "**/*.uvguix.*": true,
+        "**/*.lst": true,
+        "**/*.obj": true,
+        "**/*.M51": true,
+        "**/*.SBR": true,
+        "**/*.lnp": true,
+        "**/build.log": true,
+        "**/*.build_log.htm": true
+    },
+    "search.exclude": {
+        "**/Objects": true,
+        "**/Listings": true,
+        "**/out_file": true
+    }
+}

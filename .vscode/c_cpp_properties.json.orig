@@ -1,0 +1,38 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "STC32G144K (Keil C251)",
+            "includePath": [
+                "${workspaceFolder}/user",
+                "${workspaceFolder}/code",
+                "${workspaceFolder}/../libraries/zf_common",
+                "${workspaceFolder}/../libraries/zf_driver",
+                "${workspaceFolder}/../libraries/zf_device",
+                "${workspaceFolder}/../libraries/zf_components",
+                "${workspaceFolder}/../libraries/zf_components/stc32g_usb_lib",
+                "${workspaceFolder}/../libraries/zf_components/seekfree_assistant",
+                "D:/KEIL/C251/INC",
+                "D:/KEIL/C251/INC/STC"
+            ],
+            "defines": [
+                "__C251__"
+            ],
+            "compilerPath": "",
+            "cStandard": "c89",
+            "cppStandard": "c++98",
+            "intelliSenseMode": "gcc-x86",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/user",
+                    "${workspaceFolder}/code",
+                    "${workspaceFolder}/../libraries/zf_common",
+                    "${workspaceFolder}/../libraries/zf_driver",
+                    "${workspaceFolder}/../libraries/zf_device",
+                    "${workspaceFolder}/../libraries/zf_components"
+                ],
+                "limitSymbolsToIncludedHeaders": false
+            }
+        }
+    ]
+}
