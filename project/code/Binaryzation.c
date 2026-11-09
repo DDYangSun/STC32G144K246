@@ -1,4 +1,5 @@
 #include "zf_common_headfile.h"
+#include "Image.h"
 
 #pragma OPTIMIZE(3,SPEED)           //加了这个有质的飞跃，没加20帧，加了33帧
 
@@ -48,86 +49,90 @@ uint16 Get_PixelNum(uint16 Wide, uint16 Height)
 //              最大类间方差约 1.07e9，uint32 不会溢出；
 //              空类直接跳过，避免除零；双峰平台取中点，阈值更稳
 //-------------------------------------------------------------------------------------------------------------------
-
-
-uint8 Otsu_GetThreshold(uint16 *Histogram, uint16 PixelNum)
+uint8 Otsu_GetThreshold(uint16 *PixelValueNum,uint16 PixelNum)       //灰度直方图
 {
-    uint32 totalSum = 0;
-    uint32 numBack = 0, numFore;
-    uint32 sumBack = 0, sumFore;
-    uint32 w0, w1;
-    uint32 u0, u1;
-    uint32 delta, delta2;
-    uint32 variance, bestVariance = 0;
-    uint16 i;
-    uint16 bestLow = 0, bestHigh = 0;
-    uint8  bestThreshold = 128;
+	uint8 Otsu_Threshold = 0;
+	uint32 Threshold_BackgroundNum = 0,Thereshold_ForegroundNum = 0;			            	//当前灰度值的像素数量
+	uint32 Threshold_BackgroundSum = 0,Threshold_ForegroundSum = 0,GraySum = 0;		            //当前灰度值的灰度值总数
+	int32 w0,w1,u0,u1;
+	int32 Variance = 0,Variance_Temp = 0;						//方差
+    uint8 low = 0,high = 0;                                     //取平均数的前后阈值
+	uint16 i;
 
-    if (PixelNum == 0)
+    /*
+        遍历，算灰度值总和
+
+        +=背景像素和
+        +=背景灰度值
+        w0 = 每一次从左到右+=的背景像素 / 总像素
+        w1 = 1 - w0（根据放大缩小后关系来定1）
+
+        u0 = 每一次从左到右+=的背景灰度值 / 背景的像素和
+        u1 = （总灰度值 - 背景灰度值）/ （总像素和 - 背景像素和）
+
+        公式：Variance = w0 * w1 * (u0 - u1) * (u0 - u1)
+    */
+
+    //计算灰度值之和
+    for (i = 0;i < 256;i++)
     {
-        return 128;
+        GraySum += PixelValueNum[i] * i;
     }
 
-    /* 整幅图的灰度总和，只累加一次 */
-    for (i = 0; i < 256; i++)
+    for (i = 1;i < 255;i++)
     {
-        totalSum += (uint32)Histogram[i] * i;
-    }
+        Threshold_BackgroundNum += PixelValueNum[i];
+        Threshold_BackgroundSum += PixelValueNum[i] * i;
+        Thereshold_ForegroundNum = PixelNum - Threshold_BackgroundNum;
+        Threshold_ForegroundSum = GraySum - Threshold_BackgroundSum;
 
-    /* threshold = i：背景为 [0, i-1]，前景为 [i, 255] */
-    for (i = 1; i < 256; i++)
-    {
-        numBack += Histogram[i - 1];
-        sumBack += (uint32)Histogram[i - 1] * (i - 1);
-
-        if ((numBack == 0) || (numBack >= (uint32)PixelNum))
-        {
-            continue;
-        }
-        numFore = (uint32)PixelNum - numBack;
-        sumFore = totalSum - sumBack;
-
-        /* 类内均值四舍五入到整数（0~255） */
-        u0 = (sumBack + (numBack >> 1)) / numBack;
-        u1 = (sumFore + (numFore >> 1)) / numFore;
-
-        /* 取绝对差，避免无符号减法回绕 */
-        if (u0 > u1)
-        {
-            delta = u0 - u1;
-        }
-        else
-        {
-            delta = u1 - u0;
-        }
-        delta2 = delta * delta;                 /* 最大 255*255 = 65025 */
-
-        /* 权重 Q8：256 表示 100%，四舍五入 */
-        w0 = ((numBack * 256UL) + (PixelNum >> 1)) / PixelNum;
+        //四舍五入
+        w0 = ((Threshold_BackgroundNum * 256UL) + (PixelNum >> 1)) / PixelNum;
         w1 = 256 - w0;
-        if ((w0 == 0) || (w1 == 0))
-        {
+
+        //防止一瞬间的阈值错乱
+        if (w0 == 0 || w1 == 0)
             continue;
-        }
 
-        variance = w0 * w1 * delta2;            /* 最大 16384*65025 ≈ 1.07e9 */
-        if (variance > bestVariance)
+        u0 = (Threshold_BackgroundSum + (Threshold_BackgroundNum >> 1)) / Threshold_BackgroundNum;
+        u1 = (Threshold_ForegroundSum + (Thereshold_ForegroundNum >> 1)) / Thereshold_ForegroundNum;
+ 
+        //防止一瞬间的阈值错乱
+        if (u0 == 0 || u1 == 0)
+            continue;
+        
+        Variance_Temp = w0 * w1 * (u0 - u1) * (u0 - u1);
+
+        if (Variance_Temp > Variance)
         {
-            bestVariance = variance;
-            bestLow = i;
-            bestHigh = i;
+            Variance = Variance_Temp;
+            low = high = i;
         }
-        else if ((variance == bestVariance) && (i == (uint16)(bestHigh + 1)))
+        else if (Variance_Temp == Variance && i == (uint16)(high + 1))
         {
-            bestHigh = i;                       /* 连续平台，记录平台右端 */
-        }
+            high = i;
+        }  
     }
 
-    /* 双峰之间的方差是平的，取平台中点，阈值更稳、边缘余量更大 */
-    if (bestVariance != 0)
+    //取平均数
+    Otsu_Threshold = (low + high) >> 1;
+
+    return Otsu_Threshold;
+}
+
+//二值化
+void ImageBinaryzation(uint8 GrayImage[GrayImage_Height][GrayImage_Wide],uint8 Threshold,uint8 GrayImage_Bina[GrayImage_Height][GrayImage_Wide])
+{
+	uint16 i,j;
+
+    for (i = 0;i < GrayImage_Height;i++)
     {
-        bestThreshold = (uint8)((bestLow + bestHigh) >> 1);
+        for (j = 0;j < GrayImage_Wide;j++)
+        {
+            if (GrayImage[i][j] < Threshold)
+                GrayImage_Bina[i][j] = 0;
+            else
+                GrayImage_Bina[i][j] = 255;
+        }
     }
-
-    return bestThreshold;
 }

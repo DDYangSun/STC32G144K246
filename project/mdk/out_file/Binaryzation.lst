@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  20:24:59  PAGE 1   
+C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  23:09:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Binaryzation
@@ -11,158 +11,165 @@ COMPILER INVOKED BY: D:\KEIL\C251\BIN\C251.EXE ..\code\Binaryzation.c LARGE ROM(
 stmt  level    source
 
     1          #include "zf_common_headfile.h"
-    2          
-    3          #pragma OPTIMIZE(3,SPEED)           //¼ÓÁËÕâ¸öÓÐÖÊµÄ·ÉÔ¾£¬Ã»¼Ó20Ö¡£¬¼ÓÁË33Ö¡
-    4          
-    5          //-------------------------------------------------------------------------------------------------------
+    2          #include "Image.h"
+    3          
+    4          #pragma OPTIMIZE(3,SPEED)           //¼ÓÁËÕâ¸öÓÐÖÊµÄ·ÉÔ¾£¬Ã»¼Ó20Ö¡£¬¼ÓÁË33Ö¡
+    5          
+    6          //-------------------------------------------------------------------------------------------------------
              -------------
-    6          // º¯Êý¼ò½é     Í³¼Æ»Ò¶ÈÖ±·½Í¼
-    7          // ²ÎÊýËµÃ÷     GrayImage       »Ò¶ÈÍ¼ÏñÊ×µØÖ·
-    8          // ²ÎÊýËµÃ÷     Length          ÏñËØ¸öÊý£¨MT9V03X Îª 188*120 = 22560£©
-    9          // ²ÎÊýËµÃ÷     PixelValueNum   Ö±·½Í¼Êý×é£¬³¤¶È 256
-   10          // ·µ»Ø²ÎÊý     void
-   11          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»uint16 ¼ÆÊý×î´ó 65535£¬µ±Ç°·Ö±æÂÊ²»»áÒç³ö
-   12          //-------------------------------------------------------------------------------------------------------
+    7          // º¯Êý¼ò½é     Í³¼Æ»Ò¶ÈÖ±·½Í¼
+    8          // ²ÎÊýËµÃ÷     GrayImage       »Ò¶ÈÍ¼ÏñÊ×µØÖ·
+    9          // ²ÎÊýËµÃ÷     Length          ÏñËØ¸öÊý£¨MT9V03X Îª 188*120 = 22560£©
+   10          // ²ÎÊýËµÃ÷     PixelValueNum   Ö±·½Í¼Êý×é£¬³¤¶È 256
+   11          // ·µ»Ø²ÎÊý     void
+   12          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»uint16 ¼ÆÊý×î´ó 65535£¬µ±Ç°·Ö±æÂÊ²»»áÒç³ö
+   13          //-------------------------------------------------------------------------------------------------------
              -------------
-   13          void DrawPixelChart(uint8 *GrayImage, uint16 Length, uint16 *PixelValueNum)
-   14          {
-   15   1          uint16 i;
-   16   1      
-   17   1          for (i = 0; i < 256; i++)
-   18   1          {
-   19   2              PixelValueNum[i] = 0;
-   20   2          }
-   21   1      
-   22   1          for (i = 0; i < Length; i++)
-   23   1          {
-   24   2              PixelValueNum[*GrayImage]++;
-   25   2              GrayImage++;
-   26   2          }
-   27   1      }
-   28          
+   14          void DrawPixelChart(uint8 *GrayImage, uint16 Length, uint16 *PixelValueNum)
+   15          {
+   16   1          uint16 i;
+   17   1      
+   18   1          for (i = 0; i < 256; i++)
+   19   1          {
+   20   2              PixelValueNum[i] = 0;
+   21   2          }
+   22   1      
+   23   1          for (i = 0; i < Length; i++)
+   24   1          {
+   25   2              PixelValueNum[*GrayImage]++;
+   26   2              GrayImage++;
+   27   2          }
+   28   1      }
    29          
-   30          //-------------------------------------------------------------------------------------------------------
+   30          
+   31          //-------------------------------------------------------------------------------------------------------
              -------------
-   31          // º¯Êý¼ò½é     ¼ÆËãÏñËØ×ÜÊý
-   32          // ²ÎÊýËµÃ÷     Wide            Í¼Ïñ¿í¶È
-   33          // ²ÎÊýËµÃ÷     Height          Í¼Ïñ¸ß¶È
-   34          // ·µ»Ø²ÎÊý     uint16          ÏñËØ×ÜÊý
-   35          // ±¸×¢ÐÅÏ¢     MT9V03X Îª 188*120 = 22560£¬Î´³¬¹ý uint16 ·¶Î§
-   36          //-------------------------------------------------------------------------------------------------------
+   32          // º¯Êý¼ò½é     ¼ÆËãÏñËØ×ÜÊý
+   33          // ²ÎÊýËµÃ÷     Wide            Í¼Ïñ¿í¶È
+   34          // ²ÎÊýËµÃ÷     Height          Í¼Ïñ¸ß¶È
+   35          // ·µ»Ø²ÎÊý     uint16          ÏñËØ×ÜÊý
+   36          // ±¸×¢ÐÅÏ¢     MT9V03X Îª 188*120 = 22560£¬Î´³¬¹ý uint16 ·¶Î§
+   37          //-------------------------------------------------------------------------------------------------------
              -------------
-   37          uint16 Get_PixelNum(uint16 Wide, uint16 Height)
-   38          {
-   39   1          return Wide * Height;
-   40   1      }
-   41          
-   42          //-------------------------------------------------------------------------------------------------------
+   38          uint16 Get_PixelNum(uint16 Wide, uint16 Height)
+   39          {
+   40   1          return Wide * Height;
+   41   1      }
+   42          
+   43          //-------------------------------------------------------------------------------------------------------
              -------------
-   43          // º¯Êý¼ò½é     ´ó½ò·¨£¨Otsu£©¼ÆËã¶þÖµ»¯ãÐÖµ
-   44          // ²ÎÊýËµÃ÷     Histogram       256 ¼¶»Ò¶ÈÖ±·½Í¼
-   45          // ²ÎÊýËµÃ÷     PixelNum        ÏñËØ×ÜÊý
-   46          // ·µ»Ø²ÎÊý     uint8           ãÐÖµ 1~255£»Ö±·½Í¼ÍË»¯Ê±·µ»Ø 128
-   47          // ±¸×¢ÐÅÏ¢     Ç°×ººÍÊµÏÖ£¬¸´ÔÓ¶È O(256)£»È¨ÖØÓÃ Q8 ¶¨µã£¨256 = 100%£©£¬
-   48          //              ×î´óÀà¼ä·½²îÔ¼ 1.07e9£¬uint32 ²»»áÒç³ö£»
-   49          //              ¿ÕÀàÖ±½ÓÌø¹ý£¬±ÜÃâ³ýÁã£»Ë«·åÆ½Ì¨È¡ÖÐµã£¬ãÐÖµ¸üÎÈ
-   50          //-------------------------------------------------------------------------------------------------------
-             -------------
-C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  20:24:59  PAGE 2   
+   44          // º¯Êý¼ò½é     ´ó½ò·¨£¨Otsu£©¼ÆËã¶þÖµ»¯ãÐÖµ
+   45          // ²ÎÊýËµÃ÷     Histogram       256 ¼¶»Ò¶ÈÖ±·½Í¼
+   46          // ²ÎÊýËµÃ÷     PixelNum        ÏñËØ×ÜÊý
+   47          // ·µ»Ø²ÎÊý     uint8           ãÐÖµ 1~255£»Ö±·½Í¼ÍË»¯Ê±·µ»Ø 128
+   48          // ±¸×¢ÐÅÏ¢     Ç°×ººÍÊµÏÖ£¬¸´ÔÓ¶È O(256)£»È¨ÖØÓÃ Q8 ¶¨µã£¨256 = 100%£©£¬
+   49          //              ×î´óÀà¼ä·½²îÔ¼ 1.07e9£¬uint32 ²»»áÒç³ö£»
+   50          //              ¿ÕÀàÖ±½ÓÌø¹ý£¬±ÜÃâ³ýÁã£»Ë«·åÆ½Ì¨È¡ÖÐµã£¬ãÐÖµ¸üÎÈ
+   51          //-------------------------------------------------------------------------------------------------------
+C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  23:09:26  PAGE 2   
 
-   51          
-   52          
-   53          uint8 Otsu_GetThreshold(uint16 *Histogram, uint16 PixelNum)
-   54          {
-   55   1          uint32 totalSum = 0;
-   56   1          uint32 numBack = 0, numFore;
-   57   1          uint32 sumBack = 0, sumFore;
-   58   1          uint32 w0, w1;
-   59   1          uint32 u0, u1;
-   60   1          uint32 delta, delta2;
-   61   1          uint32 variance, bestVariance = 0;
-   62   1          uint16 i;
-   63   1          uint16 bestLow = 0, bestHigh = 0;
-   64   1          uint8  bestThreshold = 128;
-   65   1      
-   66   1          if (PixelNum == 0)
-   67   1          {
-   68   2              return 128;
-   69   2          }
-   70   1      
-   71   1          /* Õû·ùÍ¼µÄ»Ò¶È×ÜºÍ£¬Ö»ÀÛ¼ÓÒ»´Î */
-   72   1          for (i = 0; i < 256; i++)
-   73   1          {
-   74   2              totalSum += (uint32)Histogram[i] * i;
-   75   2          }
-   76   1      
-   77   1          /* threshold = i£º±³¾°Îª [0, i-1]£¬Ç°¾°Îª [i, 255] */
-   78   1          for (i = 1; i < 256; i++)
-   79   1          {
-   80   2              numBack += Histogram[i - 1];
-   81   2              sumBack += (uint32)Histogram[i - 1] * (i - 1);
-   82   2      
-   83   2              if ((numBack == 0) || (numBack >= (uint32)PixelNum))
-   84   2              {
-   85   3                  continue;
-   86   3              }
-   87   2              numFore = (uint32)PixelNum - numBack;
-   88   2              sumFore = totalSum - sumBack;
-   89   2      
-   90   2              /* ÀàÄÚ¾ùÖµËÄÉáÎåÈëµ½ÕûÊý£¨0~255£© */
-   91   2              u0 = (sumBack + (numBack >> 1)) / numBack;
-   92   2              u1 = (sumFore + (numFore >> 1)) / numFore;
-   93   2      
-   94   2              /* È¡¾ø¶Ô²î£¬±ÜÃâÎÞ·ûºÅ¼õ·¨»ØÈÆ */
-   95   2              if (u0 > u1)
-   96   2              {
-   97   3                  delta = u0 - u1;
-   98   3              }
-   99   2              else
-  100   2              {
-  101   3                  delta = u1 - u0;
-  102   3              }
-  103   2              delta2 = delta * delta;                 /* ×î´ó 255*255 = 65025 */
-  104   2      
-  105   2              /* È¨ÖØ Q8£º256 ±íÊ¾ 100%£¬ËÄÉáÎåÈë */
-  106   2              w0 = ((numBack * 256UL) + (PixelNum >> 1)) / PixelNum;
-  107   2              w1 = 256 - w0;
-  108   2              if ((w0 == 0) || (w1 == 0))
-  109   2              {
-  110   3                  continue;
-  111   3              }
-  112   2      
-  113   2              variance = w0 * w1 * delta2;            /* ×î´ó 16384*65025 ¡Ö 1.07e9 */
-  114   2              if (variance > bestVariance)
-  115   2              {
-  116   3                  bestVariance = variance;
-C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  20:24:59  PAGE 3   
+             -------------
+   52          uint8 Otsu_GetThreshold(uint16 *PixelValueNum,uint16 PixelNum)       //»Ò¶ÈÖ±·½Í¼
+   53          {
+   54   1        uint8 Otsu_Threshold = 0;
+   55   1        uint32 Threshold_BackgroundNum = 0,Thereshold_ForegroundNum = 0;                    //µ±Ç°»Ò¶ÈÖµµÄÏñËØÊýÁ¿
+   56   1        uint32 Threshold_BackgroundSum = 0,Threshold_ForegroundSum = 0,GraySum = 0;               //µ±Ç°»Ò¶ÈÖµµÄ»
+             -Ò¶ÈÖµ×ÜÊý
+   57   1        int32 w0,w1,u0,u1;
+   58   1        int32 Variance = 0,Variance_Temp = 0;           //·½²î
+   59   1          uint8 low = 0,high = 0;                                     //È¡Æ½¾ùÊýµÄÇ°ºóãÐÖµ
+   60   1        uint16 i;
+   61   1      
+   62   1          /*
+   63   1              ±éÀú£¬Ëã»Ò¶ÈÖµ×ÜºÍ
+   64   1      
+   65   1              +=±³¾°ÏñËØºÍ
+   66   1              +=±³¾°»Ò¶ÈÖµ
+   67   1              w0 = Ã¿Ò»´Î´Ó×óµ½ÓÒ+=µÄ±³¾°ÏñËØ / ×ÜÏñËØ
+   68   1              w1 = 1 - w0£¨¸ù¾Ý·Å´óËõÐ¡ºó¹ØÏµÀ´¶¨1£©
+   69   1      
+   70   1              u0 = Ã¿Ò»´Î´Ó×óµ½ÓÒ+=µÄ±³¾°»Ò¶ÈÖµ / ±³¾°µÄÏñËØºÍ
+   71   1              u1 = £¨×Ü»Ò¶ÈÖµ - ±³¾°»Ò¶ÈÖµ£©/ £¨×ÜÏñËØºÍ - ±³¾°ÏñËØºÍ£©
+   72   1      
+   73   1              ¹«Ê½£ºVariance = w0 * w1 * (u0 - u1) * (u0 - u1)
+   74   1          */
+   75   1      
+   76   1          //¼ÆËã»Ò¶ÈÖµÖ®ºÍ
+   77   1          for (i = 0;i < 256;i++)
+   78   1          {
+   79   2              GraySum += PixelValueNum[i] * i;
+   80   2          }
+   81   1      
+   82   1          for (i = 1;i < 255;i++)
+   83   1          {
+   84   2              Threshold_BackgroundNum += PixelValueNum[i];
+   85   2              Threshold_BackgroundSum += PixelValueNum[i] * i;
+   86   2              Thereshold_ForegroundNum = PixelNum - Threshold_BackgroundNum;
+   87   2              Threshold_ForegroundSum = GraySum - Threshold_BackgroundSum;
+   88   2      
+   89   2              //ËÄÉáÎåÈë
+   90   2              w0 = ((Threshold_BackgroundNum * 256UL) + (PixelNum >> 1)) / PixelNum;
+   91   2              w1 = 256 - w0;
+   92   2      
+   93   2              //·ÀÖ¹Ò»Ë²¼äµÄãÐÖµ´íÂÒ
+   94   2              if (w0 == 0 || w1 == 0)
+   95   2                  continue;
+   96   2      
+   97   2              u0 = (Threshold_BackgroundSum + (Threshold_BackgroundNum >> 1)) / Threshold_BackgroundNum;
+   98   2              u1 = (Threshold_ForegroundSum + (Thereshold_ForegroundNum >> 1)) / Thereshold_ForegroundNum;
+   99   2       
+  100   2              //·ÀÖ¹Ò»Ë²¼äµÄãÐÖµ´íÂÒ
+  101   2              if (u0 == 0 || u1 == 0)
+  102   2                  continue;
+  103   2              
+  104   2              Variance_Temp = w0 * w1 * (u0 - u1) * (u0 - u1);
+  105   2      
+  106   2              if (Variance_Temp > Variance)
+  107   2              {
+  108   3                  Variance = Variance_Temp;
+  109   3                  low = high = i;
+  110   3              }
+  111   2              else if (Variance_Temp == Variance && i == (uint16)(high + 1))
+  112   2              {
+  113   3                  high = i;
+  114   3              }  
+  115   2          }
+C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  23:09:26  PAGE 3   
 
-  117   3                  bestLow = i;
-  118   3                  bestHigh = i;
-  119   3              }
-  120   2              else if ((variance == bestVariance) && (i == (uint16)(bestHigh + 1)))
-  121   2              {
-  122   3                  bestHigh = i;                       /* Á¬ÐøÆ½Ì¨£¬¼ÇÂ¼Æ½Ì¨ÓÒ¶Ë */
-  123   3              }
-  124   2          }
-  125   1      
-  126   1          /* Ë«·åÖ®¼äµÄ·½²îÊÇÆ½µÄ£¬È¡Æ½Ì¨ÖÐµã£¬ãÐÖµ¸üÎÈ¡¢±ßÔµÓàÁ¿¸ü´ó */
-  127   1          if (bestVariance != 0)
-  128   1          {
-  129   2              bestThreshold = (uint8)((bestLow + bestHigh) >> 1);
-  130   2          }
-  131   1      
-  132   1          return bestThreshold;
-  133   1      }
+  116   1      
+  117   1          //È¡Æ½¾ùÊý
+  118   1          Otsu_Threshold = (low + high) >> 1;
+  119   1      
+  120   1          return Otsu_Threshold;
+  121   1      }
+  122          
+  123          //¶þÖµ»¯
+  124          void ImageBinaryzation(uint8 GrayImage[GrayImage_Height][GrayImage_Wide],uint8 Threshold,uint8 GrayImage_
+             -Bina[GrayImage_Height][GrayImage_Wide])
+  125          {
+  126   1        uint16 i,j;
+  127   1      
+  128   1          for (i = 0;i < GrayImage_Height;i++)
+  129   1          {
+  130   2              for (j = 0;j < GrayImage_Wide;j++)
+  131   2              {
+  132   3                  if (GrayImage[i][j] < Threshold)
+  133   3                      GrayImage_Bina[i][j] = 0;
+  134   3                  else
+  135   3                      GrayImage_Bina[i][j] = 255;
+  136   3              }
+  137   2          }
+  138   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       750     ------
+  ecode size           =       782     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =    ------         49
+  xdata size           =    ------         39
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

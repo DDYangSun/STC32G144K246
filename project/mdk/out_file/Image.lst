@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Image                                                              09/11/26  20:40:16  PAGE 1   
+C251 COMPILER V5.60.0,  Image                                                              09/11/26  23:25:07  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Image
@@ -14,84 +14,178 @@ stmt  level    source
     2          #include "Binaryzation.h"
     3          #include "Image.h"
     4          
-    5          #define CompressImage       1           //1为压缩图像，0为不压缩图像，默认不压缩
-    6          
-    7          uint16 PixelNum;
-    8          uint16 PixelValueNum[256];
-    9          
-   10          uint8 mt9v03x_image_Compress[MT9V03X_H / 3][MT9V03X_W / 3 + 1];
-   11          
-   12          void Image_Init()
-   13          {
-   14   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);  // 分辨率固定，只算一次
-   15   1      
-   16   1      }
-   17          
-   18          //-------------------------------------------------------------------------------------------------------
+    5          uint16 PixelNum;
+    6          uint16 PixelValueNum[256];                                                 //灰度直方图
+    7          
+    8          uint8 GrayImage_Bina[GrayImage_Height][GrayImage_Wide];                     //二值化后像素数组
+    9          uint8 mt9v03x_image_Compress[GrayImage_Height][GrayImage_Wide];             //压缩后像素数组
+   10          
+   11          void Image_Init()
+   12          {
+   13   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);                         // 分辨率固定，只算一次
+   14   1      
+   15   1      }
+   16          
+   17          //-------------------------------------------------------------------------------------------------------
              -------------
-   19          // 函数简介     将摄像头传输图像压缩至更低分辨率
-   20          // 参数说明     GrayImage               灰度图像首地址
-   21          // 参数说明     GrayImage_Compress      压缩后灰度图像首地址
-   22          // 返回参数     void
-   23          // 备注信息     每帧统计前必须清零；188 * 120 变成 63 * 40
-   24          //-------------------------------------------------------------------------------------------------------
+   18          // 函数简介     将摄像头传输图像压缩至更低分辨率
+   19          // 参数说明     GrayImage               灰度图像首地址
+   20          // 参数说明     GrayImage_Compress      压缩后灰度图像首地址
+   21          // 返回参数     void
+   22          // 备注信息     每帧统计前必须清零；188 * 120 变成 63 * 40
+   23          //-------------------------------------------------------------------------------------------------------
              -------------
-   25          void GrayImage_Compress(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H / 3][MT
+   24          void GrayImage_Compress(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H / 3][MT
              -9V03X_W / 3 + 1])
-   26          {
-   27   1          uint16 i,j;
-   28   1          uint16 u = 0,v = 0;
-   29   1      
-   30   1          for (i = 0;i < MT9V03X_H;i += 3)
-   31   1          {
-   32   2              for (j  = 0;j < MT9V03X_W;j += 3)
-   33   2              {
-   34   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
-   35   3                  v++;
-   36   3              }
-   37   2              v = 0;
-   38   2              u++;
-   39   2          }
-   40   1      }
+   25          {
+   26   1          uint16 i,j;
+   27   1          uint16 u = 0,v = 0;
+   28   1      
+   29   1          for (i = 0;i < MT9V03X_H;i += 3)
+   30   1          {
+   31   2              for (j  = 0;j < MT9V03X_W;j += 3)
+   32   2              {
+   33   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
+   34   3                  v++;
+   35   3              }
+   36   2              v = 0;
+   37   2              u++;
+   38   2          }
+   39   1      }
+   40          
    41          
-   42          
-   43          void Image_Process(void)
-   44          {
-   45   1          uint8 ImageThreshold;
-   46   1      
-   47   1          #if CompressImage       
-   48   1      
-   49   1              //压缩图像
-   50   1              GrayImage_Compress(mt9v03x_image[0],mt9v03x_image_Compress[0]);         //压缩图像
-   51   1              DrawPixelChart(mt9v03x_image_Compress[0], 63 * 40, PixelValueNum);      //转换成灰度直方图
-   52   1              ImageThreshold = Otsu_GetThreshold(PixelValueNum, 63 * 40);             //获取大津法阈值
-   53   1              tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], 63, 40, 63, 40, ImageThreshold);        /
-C251 COMPILER V5.60.0,  Image                                                              09/11/26  20:40:16  PAGE 2   
+   42          // 邻域白点数量阈值，0~8
+   43          #define THR_MAX 6    // 邻域白点≥6，中心黑点翻转成白点
+   44          #define THR_MIN 2    // 邻域白点≤2，中心白点翻转成黑点
+   45          
+   46          // 全局临时缓存，不要放栈里，省时间、防栈溢出
+   47          uint8 FilterTemp[GrayImage_Height][GrayImage_Wide];
+   48          
+   49          void ErosionFilter(uint8 img[GrayImage_Height][GrayImage_Wide])
+   50          {
+   51   1          uint16 i,j;
+   52   1          uint8 cnt;
+   53   1          for (i = 1; i < GrayImage_Height - 1; i++)
+C251 COMPILER V5.60.0,  Image                                                              09/11/26  23:25:07  PAGE 2   
 
-             -/显示图像在tft180
-   54   1      
-   55   1          #else
+   54   1          {
+   55   2              for (j = 1; j < GrayImage_Wide - 1; j++)
+   56   2              {
+   57   3                  // 统计八邻域里面255的个数，代替加法
+   58   3                  cnt = 0;
+   59   3                  if(img[i-1][j-1]) cnt++;
+   60   3                  if(img[i-1][j])   cnt++;
+   61   3                  if(img[i-1][j+1]) cnt++;
+   62   3                  if(img[i][j-1])   cnt++;
+   63   3                  if(img[i][j+1])   cnt++;
+   64   3                  if(img[i+1][j-1]) cnt++;
+   65   3                  if(img[i+1][j])   cnt++;
+   66   3                  if(img[i+1][j+1]) cnt++;
+   67   3      
+   68   3                  FilterTemp[i][j] = img[i][j]; // 默认不变
+   69   3      
+   70   3                  if(cnt >= THR_MAX && img[i][j] == 0)
+   71   3                  {
+   72   4                      FilterTemp[i][j] = 255;
+   73   4                  }
+   74   3                  else if(cnt <= THR_MIN && img[i][j] == 255)
+   75   3                  {
+   76   4                      FilterTemp[i][j] = 0;
+   77   4                  }
+   78   3              }
+   79   2          }
+   80   1          // 回写
+   81   1          for (i = 1; i < GrayImage_Height - 1; i++)
+   82   1          {
+   83   2              for (j = 1; j < GrayImage_Wide - 1; j++)
+   84   2              {
+   85   3                  img[i][j] = FilterTemp[i][j];
+   86   3              }
+   87   2          }
+   88   1      }
+   89          
+   90          /*
+   91          //八邻域腐蚀滤波
+   92          void ErosionFilter(uint8 GrayImage[GrayImage_Height][GrayImage_Wide])
+   93          {
+   94              uint16 i,j;
+   95          
+   96              for (i = 1;i < GrayImage_Height - 1;i++)
+   97              {
+   98                  for (j = 1;j < GrayImage_Wide - 1;j++)
+   99                  {
+  100                      if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[i][j 
+             -- 1]
+  101                          + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][
+             -j + 1] > FilterThreshold_Max 
+  102                          && GrayImage[i][j] == 0)
+  103                      {
+  104                          GrayImage[i][j] = 255;
+  105                      }
+  106                      else if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[
+             -i][j - 1]
+  107                      + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][j + 
+             -1] < FilterThreshold_Min 
+  108                      && GrayImage[i][j] == 255)
+  109                      {
+  110                          GrayImage[i][j] = 0;
+  111                      }
+  112                  }
+  113          
+  114              }
+  115          
+C251 COMPILER V5.60.0,  Image                                                              09/11/26  23:25:07  PAGE 3   
+
+  116          }
+  117          */
+  118          
+  119          void Image_Process(void)
+  120          {
+  121   1          uint8 ImageThreshold;
+  122   1      
+  123   1          //压缩图像(后续可以在后面写else if更新压缩分辨率)
+  124   1          #if CompressImage    
+  125   1          
+  126   1              //压缩图像至63 * 40
+  127   1              GrayImage_Compress(mt9v03x_image[0],GrayImageArray);         
+  128   1              
+  129   1          #endif
+  130   1      
+  131   1          DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                    
+             -    //转换成灰度直方图
+  132   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
+             -    //获取大津法阈值
+  133   1          ImageBinaryzation(GrayImageArray,ImageThreshold,GrayImage_Bina[0]);                                  
+             -    //二值化
+  134   1          ErosionFilter(GrayImage_Bina[0]);                                                                    
+             -    //八邻域腐蚀滤波
+  135   1      
+  136   1      
+  137   1          //显示二值化图像，这个不用动了，是为了跟最大的分辨率区分，除非也有溢出tft的显示区域再加
+  138   1          #if CompressImage    
+  139   1          
+  140   1              tft180_show_gray_image(0, 0, GrayImage_Bina[0], GrayImage_Wide, GrayImage_Height, GrayImage_Wide,
+             - GrayImage_Height, 0);
+  141   1              
+  142   1          #else
                
-                       //没压缩图像
-                       DrawPixelChart(mt9v03x_image[0], PixelNum, PixelValueNum);
-                       ImageThreshold = Otsu_GetThreshold(PixelValueNum, PixelNum);
-                       tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W / 2, MT9V03X_H / 2
-             -, ImageThreshold);
+                       tft180_show_gray_image(0, 0, GrayImage_Bina[0], GrayImage_Wide, GrayImage_Height, GrayImage_Wide 
+             -/ 2, GrayImage_Height / 2, 0);
                
-                   #endif
-   63   1      
-   64   1          tft180_show_uint8(80, 70, ImageThreshold);
-   65   1      }
+                   #endif        
+  147   1      
+  148   1          tft180_show_uint8(80, 70, ImageThreshold);
+  149   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       397     ------
+  ecode size           =      1392     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      3051     ------
+  xdata size           =      8100     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
