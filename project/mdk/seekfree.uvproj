@@ -839,6 +839,26 @@
               <FileType>1</FileType>
               <FilePath>..\code\Binaryzation.c</FilePath>
             </File>
+            <File>
+              <FileName>Image.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\code\Image.c</FilePath>
+            </File>
+            <File>
+              <FileName>Image.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\Image.h</FilePath>
+            </File>
+            <File>
+              <FileName>HardwareConfig.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\code\HardwareConfig.c</FilePath>
+            </File>
+            <File>
+              <FileName>HardwareConfig.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\HardwareConfig.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

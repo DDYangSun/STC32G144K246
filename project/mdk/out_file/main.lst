@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               08/11/26  22:33:17  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               09/11/26  19:44:20  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -47,61 +47,45 @@ stmt  level    source
    34          *********************************************************************************************************
              -***********/
    35          #include "zf_common_headfile.h"
-   36          #include "Binaryzation.h"
-   37          
-   38          uint16 PixelNum;
-   39          uint16 PixelValueNum[256];
-   40          
-   41          void Hardware_Init()
-   42          {
-   43   1          tft180_init();
-   44   1          mt9v03x_init();         //初始化会返回值，可用于检查初始化是否成功（这里没有检查）
-   45   1      
-   46   1      }
-   47          
-   48          void Image_Process()
-   49          {
-   50   1          uint8 ImageThreshold;
-   51   1      
-   52   1          PixelNum = Get_PixelNum(MT9V03X_W,MT9V03X_H);
-   53   1          DrawPixelChart(mt9v03x_image[0],PixelNum,PixelValueNum);
-   54   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum,PixelNum);
-C251 COMPILER V5.60.0,  main                                                               08/11/26  22:33:17  PAGE 2   
+   36          #include "HardwareConfig.h"
+   37          #include "Image.h"
+   38          
+   39          void main(void)
+   40          {
+   41   1          clock_init(SYSTEM_CLOCK_96M);                   // 时钟配置及系统初始化<务必保留>
+   42   1          debug_init();                                   // 调试串口信息初始化
+   43   1          Hardware_Init();
+   44   1      
+   45   1          while(1)
+   46   1          {
+   47   2              if (FPS_Flag)
+   48   2              {
+   49   3                  tft180_show_uint16(65,87,FPS);
+   50   3            FPS = 0;
+   51   3                  FPS_Flag = 0;
+   52   3              }
+   53   2      
+   54   2              if (mt9v03x_finish_flag)
+C251 COMPILER V5.60.0,  main                                                               09/11/26  19:44:20  PAGE 2   
 
-   55   1          tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W / 2, MT9V03X_H / 2, Im
-             -ageThreshold);
-   56   1      }
-   57          
-   58          void main(void)
-   59          {
-   60   1          clock_init(SYSTEM_CLOCK_96M);         // 时钟配置及系统初始化<务必保留>
-   61   1          debug_init();                           // 调试串口信息初始化
-   62   1          Hardware_Init();
-   63   1          
-   64   1      
-   65   1          while(1)
-   66   1          {
-   67   2              if (mt9v03x_finish_flag)
-   68   2              {     
-   69   3                  Image_Process();
-   70   3                  mt9v03x_finish_flag = 0;
-   71   3              }
-   72   2      
-   73   2              
-   74   2          }
-   75   1      }
-   76          
-   77          
+   55   2              {
+   56   3                  Image_Process();
+   57   3                  mt9v03x_finish_flag = 0;
+   58   3                  FPS++;
+   59   3              }
+   60   2          }
+   61   1      }
+   62          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       233     ------
+  ecode size           =       142     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =       515     ------
+  xdata size           =    ------     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

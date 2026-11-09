@@ -33,45 +33,30 @@
 * 2025-11-20        大W            first version
 ********************************************************************************************************************/
 #include "zf_common_headfile.h"
-#include "Binaryzation.h"
-
-uint16 PixelNum;
-uint16 PixelValueNum[256];
-
-void Hardware_Init()
-{
-    tft180_init();
-    mt9v03x_init();         //初始化会返回值，可用于检查初始化是否成功（这里没有检查）
-
-}
-
-void Image_Process()
-{
-    uint8 ImageThreshold;
-
-    PixelNum = Get_PixelNum(MT9V03X_W,MT9V03X_H);
-    DrawPixelChart(mt9v03x_image[0],PixelNum,PixelValueNum);
-    ImageThreshold = Otsu_GetThreshold(PixelValueNum,PixelNum);
-    tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W / 2, MT9V03X_H / 2, ImageThreshold);
-}
+#include "HardwareConfig.h"
+#include "Image.h"
 
 void main(void)
 {
-    clock_init(SYSTEM_CLOCK_96M); 				// 时钟配置及系统初始化<务必保留>
-    debug_init();                       		// 调试串口信息初始化
+    clock_init(SYSTEM_CLOCK_96M);                   // 时钟配置及系统初始化<务必保留>
+    debug_init();                                   // 调试串口信息初始化
     Hardware_Init();
-    
 
     while(1)
     {
-        if (mt9v03x_finish_flag)
-        {     
-            Image_Process();
-            mt9v03x_finish_flag = 0;
+        if (FPS_Flag)
+        {
+            tft180_show_uint16(65,87,FPS);
+			FPS = 0;
+            FPS_Flag = 0;
         }
 
-        
+        if (mt9v03x_finish_flag)
+        {
+            Image_Process();
+            mt9v03x_finish_flag = 0;
+            FPS++;
+        }
     }
 }
-
 

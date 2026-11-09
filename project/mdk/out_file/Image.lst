@@ -1,0 +1,108 @@
+C251 COMPILER V5.60.0,  Image                                                              09/11/26  20:40:16  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Image
+OBJECT MODULE PLACED IN .\out_file\Image.obj
+COMPILER INVOKED BY: D:\KEIL\C251\BIN\C251.EXE ..\code\Image.c LARGE ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(0,SIZE) BROWSE I
+                    -NCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\use
+                    -r;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRINT(.\o
+                    -ut_file\Image.lst) TABS(2) OBJECT(.\out_file\Image.obj) 
+
+stmt  level    source
+
+    1          #include "zf_common_headfile.h"
+    2          #include "Binaryzation.h"
+    3          #include "Image.h"
+    4          
+    5          #define CompressImage       1           //1为压缩图像，0为不压缩图像，默认不压缩
+    6          
+    7          uint16 PixelNum;
+    8          uint16 PixelValueNum[256];
+    9          
+   10          uint8 mt9v03x_image_Compress[MT9V03X_H / 3][MT9V03X_W / 3 + 1];
+   11          
+   12          void Image_Init()
+   13          {
+   14   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);  // 分辨率固定，只算一次
+   15   1      
+   16   1      }
+   17          
+   18          //-------------------------------------------------------------------------------------------------------
+             -------------
+   19          // 函数简介     将摄像头传输图像压缩至更低分辨率
+   20          // 参数说明     GrayImage               灰度图像首地址
+   21          // 参数说明     GrayImage_Compress      压缩后灰度图像首地址
+   22          // 返回参数     void
+   23          // 备注信息     每帧统计前必须清零；188 * 120 变成 63 * 40
+   24          //-------------------------------------------------------------------------------------------------------
+             -------------
+   25          void GrayImage_Compress(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H / 3][MT
+             -9V03X_W / 3 + 1])
+   26          {
+   27   1          uint16 i,j;
+   28   1          uint16 u = 0,v = 0;
+   29   1      
+   30   1          for (i = 0;i < MT9V03X_H;i += 3)
+   31   1          {
+   32   2              for (j  = 0;j < MT9V03X_W;j += 3)
+   33   2              {
+   34   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
+   35   3                  v++;
+   36   3              }
+   37   2              v = 0;
+   38   2              u++;
+   39   2          }
+   40   1      }
+   41          
+   42          
+   43          void Image_Process(void)
+   44          {
+   45   1          uint8 ImageThreshold;
+   46   1      
+   47   1          #if CompressImage       
+   48   1      
+   49   1              //压缩图像
+   50   1              GrayImage_Compress(mt9v03x_image[0],mt9v03x_image_Compress[0]);         //压缩图像
+   51   1              DrawPixelChart(mt9v03x_image_Compress[0], 63 * 40, PixelValueNum);      //转换成灰度直方图
+   52   1              ImageThreshold = Otsu_GetThreshold(PixelValueNum, 63 * 40);             //获取大津法阈值
+   53   1              tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], 63, 40, 63, 40, ImageThreshold);        /
+C251 COMPILER V5.60.0,  Image                                                              09/11/26  20:40:16  PAGE 2   
+
+             -/显示图像在tft180
+   54   1      
+   55   1          #else
+               
+                       //没压缩图像
+                       DrawPixelChart(mt9v03x_image[0], PixelNum, PixelValueNum);
+                       ImageThreshold = Otsu_GetThreshold(PixelValueNum, PixelNum);
+                       tft180_show_gray_image(0, 0, mt9v03x_image[0], MT9V03X_W, MT9V03X_H, MT9V03X_W / 2, MT9V03X_H / 2
+             -, ImageThreshold);
+               
+                   #endif
+   63   1      
+   64   1          tft180_show_uint8(80, 70, ImageThreshold);
+   65   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =       397     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =      3051     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

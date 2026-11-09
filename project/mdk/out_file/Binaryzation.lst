@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Binaryzation                                                       08/11/26  23:11:10  PAGE 1   
+C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  20:24:59  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Binaryzation
@@ -11,91 +11,158 @@ COMPILER INVOKED BY: D:\KEIL\C251\BIN\C251.EXE ..\code\Binaryzation.c LARGE ROM(
 stmt  level    source
 
     1          #include "zf_common_headfile.h"
-    2          #include "zf_device_tft180.h"
-    3          
-    4          //制作像素值数量图表
-    5          void DrawPixelChart(uint8 *GrayImage,uint16 Length,uint16 *PixelValueNum)
-    6          {
-    7   1        uint16 i;
-    8   1      
-    9   1        for(i = 0;i < 256;i++)    //每帧统计前必须先清零，否则直方图会一帧帧累加，uint16 几帧就溢出
-   10   1        {
-   11   2          PixelValueNum[i] = 0;
-   12   2        }
-   13   1      
-   14   1        for(i = 0;i < Length;i++)
-   15   1        {
-   16   2          PixelValueNum[*GrayImage]++;
-   17   2          GrayImage++;
-   18   2        }
-   19   1      }
-   20          
-   21          uint16 Get_PixelNum(uint16 Wide,uint16 Height)
-   22          {
-   23   1          return Wide * Height;
-   24   1      }
-   25          
-   26          uint8 Otsu_GetThreshold(uint16 *GrayImage,uint16 PixelNum)       //灰度直方图
-   27          {
-   28   1        uint8 Otsu_Threshold = 0;
-   29   1        uint32 Threshold_BackgroundNum = 0,Thereshold_ForegroundNum = 0;        //前景背景的像素数量
-   30   1        uint32 Threshold_BackgroundSum = 0,Threshold_ForegroundSum = 0;   //灰度值
-   31   1        int32 w0,w1,u0,u1;
-   32   1        int32 Variance = 0,Variance_Temp = 0;           //方差
-   33   1      
-   34   1        uint16 i,j;
-   35   1      
-   36   1        for (i = 1;i < 255;i++)
-   37   1        {
-   38   2          for (j = 0;j < 256;j++)
-   39   2          {
-   40   3            if (j < i)
-   41   3            {
-   42   4              Threshold_BackgroundNum += GrayImage[j];      //计算背景灰度值数量之和，用于计算背景权重
-   43   4              Threshold_BackgroundSum += GrayImage[j] * j;
-   44   4            }
-   45   3            else
-   46   3            {
-   47   4              Thereshold_ForegroundNum += GrayImage[j];     //计算前景灰度值数量之和，用于计算前景权重        
-   48   4              Threshold_ForegroundSum += GrayImage[j] * j;
-   49   4            }
-   50   3      
-   51   3          }
-   52   2          w0 = (Threshold_BackgroundNum * 100) / PixelNum;
-   53   2          w1 = 100 - w0;  
-   54   2      
-   55   2          u0 = Threshold_BackgroundSum / Threshold_BackgroundNum;
-   56   2          u1 = Threshold_ForegroundSum / Thereshold_ForegroundNum;
-C251 COMPILER V5.60.0,  Binaryzation                                                       08/11/26  23:11:10  PAGE 2   
+    2          
+    3          #pragma OPTIMIZE(3,SPEED)           //加了这个有质的飞跃，没加20帧，加了33帧
+    4          
+    5          //-------------------------------------------------------------------------------------------------------
+             -------------
+    6          // 函数简介     统计灰度直方图
+    7          // 参数说明     GrayImage       灰度图像首地址
+    8          // 参数说明     Length          像素个数（MT9V03X 为 188*120 = 22560）
+    9          // 参数说明     PixelValueNum   直方图数组，长度 256
+   10          // 返回参数     void
+   11          // 备注信息     每帧统计前必须清零；uint16 计数最大 65535，当前分辨率不会溢出
+   12          //-------------------------------------------------------------------------------------------------------
+             -------------
+   13          void DrawPixelChart(uint8 *GrayImage, uint16 Length, uint16 *PixelValueNum)
+   14          {
+   15   1          uint16 i;
+   16   1      
+   17   1          for (i = 0; i < 256; i++)
+   18   1          {
+   19   2              PixelValueNum[i] = 0;
+   20   2          }
+   21   1      
+   22   1          for (i = 0; i < Length; i++)
+   23   1          {
+   24   2              PixelValueNum[*GrayImage]++;
+   25   2              GrayImage++;
+   26   2          }
+   27   1      }
+   28          
+   29          
+   30          //-------------------------------------------------------------------------------------------------------
+             -------------
+   31          // 函数简介     计算像素总数
+   32          // 参数说明     Wide            图像宽度
+   33          // 参数说明     Height          图像高度
+   34          // 返回参数     uint16          像素总数
+   35          // 备注信息     MT9V03X 为 188*120 = 22560，未超过 uint16 范围
+   36          //-------------------------------------------------------------------------------------------------------
+             -------------
+   37          uint16 Get_PixelNum(uint16 Wide, uint16 Height)
+   38          {
+   39   1          return Wide * Height;
+   40   1      }
+   41          
+   42          //-------------------------------------------------------------------------------------------------------
+             -------------
+   43          // 函数简介     大津法（Otsu）计算二值化阈值
+   44          // 参数说明     Histogram       256 级灰度直方图
+   45          // 参数说明     PixelNum        像素总数
+   46          // 返回参数     uint8           阈值 1~255；直方图退化时返回 128
+   47          // 备注信息     前缀和实现，复杂度 O(256)；权重用 Q8 定点（256 = 100%），
+   48          //              最大类间方差约 1.07e9，uint32 不会溢出；
+   49          //              空类直接跳过，避免除零；双峰平台取中点，阈值更稳
+   50          //-------------------------------------------------------------------------------------------------------
+             -------------
+C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  20:24:59  PAGE 2   
 
-   57   2      
-   58   2          Variance_Temp = w0 * w1 * (u0 - u1) * (u0 - u1);
-   59   2      
-   60   2          if (Variance_Temp > Variance)
-   61   2          {
-   62   3            Otsu_Threshold = i;
-   63   3                  
-   64   3            Variance = Variance_Temp;
-   65   3          }
-   66   2      
-   67   2          Threshold_BackgroundNum = Thereshold_ForegroundNum = Threshold_BackgroundSum = Threshold_ForegroundSum 
-             -= 0;
-   68   2        }
-   69   1      
-   70   1          tft180_show_uint8(0,70,Otsu_Threshold);
-   71   1        return Otsu_Threshold;
-   72   1      }
-   73          
+   51          
+   52          
+   53          uint8 Otsu_GetThreshold(uint16 *Histogram, uint16 PixelNum)
+   54          {
+   55   1          uint32 totalSum = 0;
+   56   1          uint32 numBack = 0, numFore;
+   57   1          uint32 sumBack = 0, sumFore;
+   58   1          uint32 w0, w1;
+   59   1          uint32 u0, u1;
+   60   1          uint32 delta, delta2;
+   61   1          uint32 variance, bestVariance = 0;
+   62   1          uint16 i;
+   63   1          uint16 bestLow = 0, bestHigh = 0;
+   64   1          uint8  bestThreshold = 128;
+   65   1      
+   66   1          if (PixelNum == 0)
+   67   1          {
+   68   2              return 128;
+   69   2          }
+   70   1      
+   71   1          /* 整幅图的灰度总和，只累加一次 */
+   72   1          for (i = 0; i < 256; i++)
+   73   1          {
+   74   2              totalSum += (uint32)Histogram[i] * i;
+   75   2          }
+   76   1      
+   77   1          /* threshold = i：背景为 [0, i-1]，前景为 [i, 255] */
+   78   1          for (i = 1; i < 256; i++)
+   79   1          {
+   80   2              numBack += Histogram[i - 1];
+   81   2              sumBack += (uint32)Histogram[i - 1] * (i - 1);
+   82   2      
+   83   2              if ((numBack == 0) || (numBack >= (uint32)PixelNum))
+   84   2              {
+   85   3                  continue;
+   86   3              }
+   87   2              numFore = (uint32)PixelNum - numBack;
+   88   2              sumFore = totalSum - sumBack;
+   89   2      
+   90   2              /* 类内均值四舍五入到整数（0~255） */
+   91   2              u0 = (sumBack + (numBack >> 1)) / numBack;
+   92   2              u1 = (sumFore + (numFore >> 1)) / numFore;
+   93   2      
+   94   2              /* 取绝对差，避免无符号减法回绕 */
+   95   2              if (u0 > u1)
+   96   2              {
+   97   3                  delta = u0 - u1;
+   98   3              }
+   99   2              else
+  100   2              {
+  101   3                  delta = u1 - u0;
+  102   3              }
+  103   2              delta2 = delta * delta;                 /* 最大 255*255 = 65025 */
+  104   2      
+  105   2              /* 权重 Q8：256 表示 100%，四舍五入 */
+  106   2              w0 = ((numBack * 256UL) + (PixelNum >> 1)) / PixelNum;
+  107   2              w1 = 256 - w0;
+  108   2              if ((w0 == 0) || (w1 == 0))
+  109   2              {
+  110   3                  continue;
+  111   3              }
+  112   2      
+  113   2              variance = w0 * w1 * delta2;            /* 最大 16384*65025 ≈ 1.07e9 */
+  114   2              if (variance > bestVariance)
+  115   2              {
+  116   3                  bestVariance = variance;
+C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  20:24:59  PAGE 3   
+
+  117   3                  bestLow = i;
+  118   3                  bestHigh = i;
+  119   3              }
+  120   2              else if ((variance == bestVariance) && (i == (uint16)(bestHigh + 1)))
+  121   2              {
+  122   3                  bestHigh = i;                       /* 连续平台，记录平台右端 */
+  123   3              }
+  124   2          }
+  125   1      
+  126   1          /* 双峰之间的方差是平的，取平台中点，阈值更稳、边缘余量更大 */
+  127   1          if (bestVariance != 0)
+  128   1          {
+  129   2              bestThreshold = (uint8)((bestLow + bestHigh) >> 1);
+  130   2          }
+  131   1      
+  132   1          return bestThreshold;
+  133   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       940     ------
+  ecode size           =       750     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        67     ------
+  xdata size           =    ------         49
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

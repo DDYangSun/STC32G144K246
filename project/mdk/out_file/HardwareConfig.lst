@@ -1,0 +1,75 @@
+C251 COMPILER V5.60.0,  HardwareConfig                                                     09/11/26  19:48:13  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
+OBJECT MODULE PLACED IN .\out_file\HardwareConfig.obj
+COMPILER INVOKED BY: D:\KEIL\C251\BIN\C251.EXE ..\code\HardwareConfig.c LARGE ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(0,SIZE)
+                    - BROWSE INCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driv
+                    -er;..\user;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG 
+                    -PRINT(.\out_file\HardwareConfig.lst) TABS(2) OBJECT(.\out_file\HardwareConfig.obj) 
+
+stmt  level    source
+
+    1          #include "zf_common_headfile.h"
+    2          #include "HardwareConfig.h"
+    3          #include "Image.h"
+    4          
+    5          uint16 FPS = 0;
+    6          uint8 FPS_Flag = 0;
+    7          
+    8          void Hardware_Debug_Init()
+    9          {
+   10   1          tft180_show_string(0,70,"Threshold:");
+   11   1          tft180_show_string(0,87,"FPS:");
+   12   1      }
+   13          
+   14          void Hardware_Init(void)
+   15          {
+   16   1          Image_Init();                           //图像显示初始化
+   17   1          tft180_init();                          //tft180初始化
+   18   1          mt9v03x_init();                         //摄像头初始化：返回值为0则成功、非0则失败（这里不处理）
+   19   1          Hardware_Debug_Init();                  //硬件调试初始化
+   20   1      
+   21   1          //开启定时器0
+   22   1          pit_ms_init(TIM0_PIT, 1, pit_handler);
+   23   1      }
+   24          
+   25          //定时器0的中断
+   26          void pit_handler()
+   27          {
+   28   1          static uint16 TIM0_Count = 0;
+   29   1      
+   30   1          //计算帧数
+   31   1          if (++TIM0_Count >= 1000)
+   32   1          {
+   33   2              FPS_Flag = 1;
+   34   2          TIM0_Count = 0;
+   35   2          }
+   36   1      
+   37   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =       140     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =         5     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        36     ------
+C251 COMPILER V5.60.0,  HardwareConfig                                                     09/11/26  19:48:13  PAGE 2   
+
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
