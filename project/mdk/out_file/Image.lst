@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Image                                                              09/11/26  23:25:07  PAGE 1   
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Image
@@ -14,178 +14,361 @@ stmt  level    source
     2          #include "Binaryzation.h"
     3          #include "Image.h"
     4          
-    5          uint16 PixelNum;
-    6          uint16 PixelValueNum[256];                                                 //»Ò¶ÈÖ±·½Í¼
+    5          uint16 PixelNum;                                                            //ÏñËØ×ÜÊý
+    6          uint16 PixelValueNum[256];                                                  //»Ò¶ÈÖ±·½Í¼
     7          
-    8          uint8 GrayImage_Bina[GrayImage_Height][GrayImage_Wide];                     //¶þÖµ»¯ºóÏñËØÊý×é
-    9          uint8 mt9v03x_image_Compress[GrayImage_Height][GrayImage_Wide];             //Ñ¹ËõºóÏñËØÊý×é
-   10          
-   11          void Image_Init()
-   12          {
-   13   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);                         // ·Ö±æÂÊ¹Ì¶¨£¬Ö»ËãÒ»´Î
-   14   1      
-   15   1      }
-   16          
-   17          //-------------------------------------------------------------------------------------------------------
+    8          uint8 mt9v03x_image_Compress[GrayImage_Height][GrayImage_Wide];             //Ñ¹ËõºóÏñËØÊý×é
+    9          
+   10          uint8 LeftLinePos = 0,RightLinePos = 255;                                     //×óÓÒ±ß½çµã
+   11          
+   12          
+   13          void Image_Init()
+   14          {
+   15   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);                         // ·Ö±æÂÊ¹Ì¶¨£¬Ö»ËãÒ»´Î
+   16   1      
+   17   1      }
+   18          
+   19          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ63 * 40·Ö±æÂÊ
+   20          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   21          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   22          // ·µ»Ø²ÎÊý     void
+   23          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»188 * 120 ±ä³É 63 * 40
+   24          //-------------------------------------------------------------------------------------------------------
              -------------
-   18          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ¸üµÍ·Ö±æÂÊ
-   19          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
-   20          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
-   21          // ·µ»Ø²ÎÊý     void
-   22          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»188 * 120 ±ä³É 63 * 40
-   23          //-------------------------------------------------------------------------------------------------------
-             -------------
-   24          void GrayImage_Compress(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H / 3][MT
-             -9V03X_W / 3 + 1])
-   25          {
-   26   1          uint16 i,j;
-   27   1          uint16 u = 0,v = 0;
-   28   1      
-   29   1          for (i = 0;i < MT9V03X_H;i += 3)
-   30   1          {
-   31   2              for (j  = 0;j < MT9V03X_W;j += 3)
-   32   2              {
-   33   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
-   34   3                  v++;
-   35   3              }
-   36   2              v = 0;
-   37   2              u++;
-   38   2          }
-   39   1      }
-   40          
+   25          void GrayImage_Compress_63_40(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
+             - 3][MT9V03X_W / 3 + 1])
+   26          {
+   27   1          uint16 i,j;
+   28   1          uint16 u = 0,v = 0;
+   29   1      
+   30   1          for (i = 0;i < MT9V03X_H;i += 3)
+   31   1          {
+   32   2              for (j  = 0;j < MT9V03X_W;j += 3)
+   33   2              {
+   34   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
+   35   3                  v++;
+   36   3              }
+   37   2              v = 0;
+   38   2              u++;
+   39   2          }
+   40   1      }
    41          
-   42          // ÁÚÓò°×µãÊýÁ¿ãÐÖµ£¬0~8
-   43          #define THR_MAX 6    // ÁÚÓò°×µã¡Ý6£¬ÖÐÐÄºÚµã·­×ª³É°×µã
-   44          #define THR_MIN 2    // ÁÚÓò°×µã¡Ü2£¬ÖÐÐÄ°×µã·­×ª³ÉºÚµã
-   45          
-   46          // È«¾ÖÁÙÊ±»º´æ£¬²»Òª·ÅÕ»Àï£¬Ê¡Ê±¼ä¡¢·ÀÕ»Òç³ö
-   47          uint8 FilterTemp[GrayImage_Height][GrayImage_Wide];
-   48          
-   49          void ErosionFilter(uint8 img[GrayImage_Height][GrayImage_Wide])
+   42          
+   43          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ94 * 60·Ö±æÂÊ
+   44          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   45          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   46          // ·µ»Ø²ÎÊý     void
+   47          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»188 * 120 ±ä³É 94 * 60
+   48          //-------------------------------------------------------------------------------------------------------
+             -------------
+   49          void GrayImage_Compress_94_60(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
+             - 2][MT9V03X_W / 2])
    50          {
    51   1          uint16 i,j;
-   52   1          uint8 cnt;
-   53   1          for (i = 1; i < GrayImage_Height - 1; i++)
-C251 COMPILER V5.60.0,  Image                                                              09/11/26  23:25:07  PAGE 2   
+   52   1          uint16 u = 0,v = 0;
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 2   
 
-   54   1          {
-   55   2              for (j = 1; j < GrayImage_Wide - 1; j++)
-   56   2              {
-   57   3                  // Í³¼Æ°ËÁÚÓòÀïÃæ255µÄ¸öÊý£¬´úÌæ¼Ó·¨
-   58   3                  cnt = 0;
-   59   3                  if(img[i-1][j-1]) cnt++;
-   60   3                  if(img[i-1][j])   cnt++;
-   61   3                  if(img[i-1][j+1]) cnt++;
-   62   3                  if(img[i][j-1])   cnt++;
-   63   3                  if(img[i][j+1])   cnt++;
-   64   3                  if(img[i+1][j-1]) cnt++;
-   65   3                  if(img[i+1][j])   cnt++;
-   66   3                  if(img[i+1][j+1]) cnt++;
-   67   3      
-   68   3                  FilterTemp[i][j] = img[i][j]; // Ä¬ÈÏ²»±ä
-   69   3      
-   70   3                  if(cnt >= THR_MAX && img[i][j] == 0)
-   71   3                  {
-   72   4                      FilterTemp[i][j] = 255;
-   73   4                  }
-   74   3                  else if(cnt <= THR_MIN && img[i][j] == 255)
-   75   3                  {
-   76   4                      FilterTemp[i][j] = 0;
-   77   4                  }
-   78   3              }
-   79   2          }
-   80   1          // »ØÐ´
-   81   1          for (i = 1; i < GrayImage_Height - 1; i++)
-   82   1          {
-   83   2              for (j = 1; j < GrayImage_Wide - 1; j++)
-   84   2              {
-   85   3                  img[i][j] = FilterTemp[i][j];
-   86   3              }
-   87   2          }
-   88   1      }
-   89          
-   90          /*
-   91          //°ËÁÚÓò¸¯Ê´ÂË²¨
-   92          void ErosionFilter(uint8 GrayImage[GrayImage_Height][GrayImage_Wide])
-   93          {
-   94              uint16 i,j;
+   53   1      
+   54   1          for (i = 0;i < MT9V03X_H;i += 2)
+   55   1          {
+   56   2              for (j  = 0;j < MT9V03X_W;j += 2)
+   57   2              {
+   58   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
+   59   3                  v++;
+   60   3              }
+   61   2              v = 0;
+   62   2              u++;
+   63   2          }
+   64   1      }
+   65          
+   66          
+   67          // ÁÚÓò°×µãÊýÁ¿ãÐÖµ£¬0~8
+   68          #define THR_MAX 6    // ÁÚÓò°×µã¡Ý6£¬ÖÐÐÄºÚµã·­×ª³É°×µã
+   69          #define THR_MIN 2    // ÁÚÓò°×µã¡Ü2£¬ÖÐÐÄ°×µã·­×ª³ÉºÚµã
+   70          
+   71          /*
+   72          // È«¾ÖÁÙÊ±»º´æ£¬²»Òª·ÅÕ»Àï£¬Ê¡Ê±¼ä¡¢·ÀÕ»Òç³ö
+   73          xdata uint8 FilterTemp[GrayImage_Height][GrayImage_Wide];
+   74          
+   75          void ErosionFilter(uint8 img[GrayImage_Height][GrayImage_Wide])
+   76          {
+   77              uint16 i,j;
+   78              uint8 cnt;
+   79              for (i = 1; i < GrayImage_Height - 1; i++)
+   80              {
+   81                  for (j = 1; j < GrayImage_Wide - 1; j++)
+   82                  {
+   83                      // Í³¼Æ°ËÁÚÓòÀïÃæ255µÄ¸öÊý£¬´úÌæ¼Ó·¨
+   84                      cnt = 0;
+   85                      if(img[i-1][j-1]) cnt++;
+   86                      if(img[i-1][j])   cnt++;
+   87                      if(img[i-1][j+1]) cnt++;
+   88                      if(img[i][j-1])   cnt++;
+   89                      if(img[i][j+1])   cnt++;
+   90                      if(img[i+1][j-1]) cnt++;
+   91                      if(img[i+1][j])   cnt++;
+   92                      if(img[i+1][j+1]) cnt++;
+   93          
+   94                      FilterTemp[i][j] = img[i][j]; // Ä¬ÈÏ²»±ä
    95          
-   96              for (i = 1;i < GrayImage_Height - 1;i++)
-   97              {
-   98                  for (j = 1;j < GrayImage_Wide - 1;j++)
-   99                  {
-  100                      if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[i][j 
-             -- 1]
-  101                          + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][
-             -j + 1] > FilterThreshold_Max 
-  102                          && GrayImage[i][j] == 0)
-  103                      {
-  104                          GrayImage[i][j] = 255;
-  105                      }
-  106                      else if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[
-             -i][j - 1]
-  107                      + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][j + 
-             -1] < FilterThreshold_Min 
-  108                      && GrayImage[i][j] == 255)
-  109                      {
-  110                          GrayImage[i][j] = 0;
-  111                      }
+   96                      if(cnt >= THR_MAX && img[i][j] == 0)
+   97                      {
+   98                          FilterTemp[i][j] = 255;
+   99                      }
+  100                      else if(cnt <= THR_MIN && img[i][j] == 255)
+  101                      {
+  102                          FilterTemp[i][j] = 0;
+  103                      }
+  104                  }
+  105              }
+  106              // »ØÐ´
+  107              for (i = 1; i < GrayImage_Height - 1; i++)
+  108              {
+  109                  for (j = 1; j < GrayImage_Wide - 1; j++)
+  110                  {
+  111                      img[i][j] = FilterTemp[i][j];
   112                  }
-  113          
-  114              }
-  115          
-C251 COMPILER V5.60.0,  Image                                                              09/11/26  23:25:07  PAGE 3   
+  113              }
+  114          }
+  115          */
+  116          /*
+  117          //°ËÁÚÓò¸¯Ê´ÂË²¨
+  118          void ErosionFilter(uint8 GrayImage[GrayImage_Height][GrayImage_Wide])
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 3   
 
-  116          }
-  117          */
-  118          
-  119          void Image_Process(void)
-  120          {
-  121   1          uint8 ImageThreshold;
-  122   1      
-  123   1          //Ñ¹ËõÍ¼Ïñ(ºóÐø¿ÉÒÔÔÚºóÃæÐ´else if¸üÐÂÑ¹Ëõ·Ö±æÂÊ)
-  124   1          #if CompressImage    
-  125   1          
-  126   1              //Ñ¹ËõÍ¼ÏñÖÁ63 * 40
-  127   1              GrayImage_Compress(mt9v03x_image[0],GrayImageArray);         
-  128   1              
-  129   1          #endif
-  130   1      
-  131   1          DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                    
+  119          {
+  120              uint16 i,j;
+  121          
+  122              for (i = 1;i < GrayImage_Height - 1;i++)
+  123              {
+  124                  for (j = 1;j < GrayImage_Wide - 1;j++)
+  125                  {
+  126                      if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[i][j 
+             -- 1]
+  127                          + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][
+             -j + 1] > FilterThreshold_Max 
+  128                          && GrayImage[i][j] == 0)
+  129                      {
+  130                          GrayImage[i][j] = 255;
+  131                      }
+  132                      else if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[
+             -i][j - 1]
+  133                      + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][j + 
+             -1] < FilterThreshold_Min 
+  134                      && GrayImage[i][j] == 255)
+  135                      {
+  136                          GrayImage[i][j] = 0;
+  137                      }
+  138                  }
+  139          
+  140              }
+  141          
+  142          }
+  143          */
+  144          
+  145          //·½ÏòÏòÁ¿
+  146          int8 Dir[8][2] = {
+  147          {0,1},      //ÉÏ
+  148          {1,1},      //ÓÒÉÏ
+  149          {1,0},      //ÓÒ
+  150          {1,-1},     //ÓÒÏÂ
+  151          {0,-1},     //ÏÂ
+  152          {-1,-1},    //×óÏÂ
+  153          {-1,0},     //×ó
+  154          {-1,1}      //×óÉÏ
+  155          };
+  156          
+  157          //Ñ°ÕÒ×î³¤°×ÁÐ
+  158          uint8 FindMaxWhiteLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide])
+  159          {
+  160   1          uint8 Count_Max = 0,Count = 0;
+  161   1          uint8 CountMaxPos = 0;
+  162   1      
+  163   1          uint16 i = 0,j = 0;
+  164   1          for (i = 0;i < GrayImage_Wide;i++)
+  165   1          {
+  166   2              j = 0;
+  167   2              Count = 0;
+  168   2              while (mt9v03x_image[GrayImage_Height - 1 - j][i] == 255 && j < GrayImage_Height - 1)
+  169   2              {
+  170   3                  Count++;
+  171   3                  j++;
+  172   3              }
+  173   2              if (Count > Count_Max)
+  174   2              {
+  175   3                  Count_Max = Count;
+  176   3                  CountMaxPos = i;
+  177   3              }
+  178   2          }
+  179   1      
+  180   1          return CountMaxPos;
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 4   
+
+  181   1      }
+  182          
+  183          //Ñ°ÕÒ×óÓÒ±ß½çµã
+  184          void FindBoundaryPoint(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide],uint8 StartPos)
+  185          {
+  186   1          uint8 i = 0;
+  187   1      
+  188   1          //Ïò×óÕÒ±ß½çµã
+  189   1          i = 0;
+  190   1          while (mt9v03x_image[GrayImage_Height - 1][StartPos - i] == 255 && i < StartPos)
+  191   1          {
+  192   2              i++;
+  193   2          }
+  194   1          LeftLinePos = StartPos - i + 1;
+  195   1      
+  196   1          //ÏòÓÒÕÒ±ß½çµã
+  197   1          i = 0;
+  198   1          while (mt9v03x_image[GrayImage_Height - 1][StartPos + i] == 255 && i < GrayImage_Wide - StartPos - 1)
+  199   1          {
+  200   2              i++;
+  201   2          }
+  202   1          RightLinePos = StartPos + i - 1;
+  203   1      }
+  204          
+  205          //ÅÀÏß
+  206          uint8 LeftLinePoint[GrayImage_Height][2],RightLinePoint[GrayImage_Height][2];   //×óÓÒ±ßÏß×ø±êÖµ
+  207          void FindLeftBoundary_ClimbLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide])
+  208          {
+  209   1          int8 x0 = 0,y0 = 0;
+  210   1          int8 x1 = 0,y1 = 0;    
+  211   1          uint8 i = 0,j = 0;
+  212   1      
+  213   1          LeftLinePoint[0][0] = LeftLinePos;
+  214   1          LeftLinePoint[0][1] = GrayImage_Height - 1;
+  215   1      
+  216   1          while (j < GrayImage_Height - 1)       //ÕâÀïÐ¡ÓÚµÈÓÚµÄÊÇ±ßÏßÊý×é³¤¶È       j = 0Ê±´æµÄÊÇ1µÄÖµ£¬Ò²Òª¿
+             -¼ÂÇÊý×é³¤¶È£¬ÄÇÃ´×î´óÖµÓ¦¸ÃÊÇGrayImage_Height - 2
+  217   1          {
+  218   2              for (i = 0;i < 8;i++)               //Ë³Ê±ÕëÐý×ª
+  219   2              {
+  220   3                  x0 = (int8)(LeftLinePoint[j][0]) + Dir[(6 + i) % 8][0];
+  221   3                  y0 = (int8)(LeftLinePoint[j][1]) + Dir[(6 + i) % 8][1];
+  222   3      
+  223   3                  if (x0 < 0 || y0 < 0)
+  224   3                      continue;
+  225   3                  
+  226   3                  x1 = (int8)(LeftLinePoint[j][0]) + Dir[(6 + i + 1) % 8][0];
+  227   3                  y1 = (int8)(LeftLinePoint[j][1]) + Dir[(6 + i + 1) % 8][1];
+  228   3      
+  229   3                  if (x1 < 0 || y1 < 0)
+  230   3                      continue;
+  231   3                  
+  232   3                  if (mt9v03x_image[y0][x0] == 0 && mt9v03x_image[y1][x1] == 255)
+  233   3                  {
+  234   4                      break;
+  235   4                  }
+  236   3              }
+  237   2              j++;
+  238   2              if (LeftLinePoint[j][1] <= LeftLinePoint[j - 1][1])
+  239   2              {
+  240   3                  LeftLinePoint[j][0] = (uint8)x1;
+  241   3                  LeftLinePoint[j][1] = (uint8)y1;
+  242   3              }
+  243   2          }
+  244   1      }
+  245          
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 5   
+
+  246          //°ËÁÚÓòËã·¨Ñ°ÕÒ±ßÏß
+  247          void FindBoundary_EightNeighborhood(uint8 mt9v03x_image_Eight[GrayImage_Height][GrayImage_Wide])
+  248          {
+  249   1          uint8 MaxWhiteLinePos = 0;
+  250   1      
+  251   1          //Ñ°ÕÒ×óÓÒ±ß½çµã
+  252   1          MaxWhiteLinePos = FindMaxWhiteLine(mt9v03x_image_Eight[0]);
+  253   1          FindBoundaryPoint(mt9v03x_image_Eight[0],MaxWhiteLinePos);
+  254   1      
+  255   1          //ÅÀÏß
+  256   1          FindLeftBoundary_ClimbLine(mt9v03x_image_Eight[0]);
+  257   1      }
+  258          uint8 Temp;
+  259          void Image_Process(void)
+  260          {
+  261   1          uint8 ImageThreshold;
+  262   1      
+  263   1          //Ñ¹ËõÍ¼Ïñ(ºóÐø¿ÉÒÔÔÚºóÃæÐ´else if¸üÐÂÑ¹Ëõ·Ö±æÂÊ)
+  264   1          #if CompressImage == 2
+                   
+                       //Ñ¹ËõÍ¼ÏñÖÁ63 * 40
+                       GrayImage_Compress_63_40(mt9v03x_image[0],GrayImageArray);         
+                       
+                   #else if CompressImage == 1
+  270   1       
+  271   1              //Ñ¹ËõÍ¼ÏñÖÁ94 * 60
+  272   1              GrayImage_Compress_94_60(mt9v03x_image[0],GrayImageArray);         
+  273   1      
+  274   1          #endif
+  275   1      
+  276   1          DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                    
              -    //×ª»»³É»Ò¶ÈÖ±·½Í¼
-  132   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
+  277   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
              -    //»ñÈ¡´ó½ò·¨ãÐÖµ
-  133   1          ImageBinaryzation(GrayImageArray,ImageThreshold,GrayImage_Bina[0]);                                  
-             -    //¶þÖµ»¯
-  134   1          ErosionFilter(GrayImage_Bina[0]);                                                                    
+  278   1          ImageBinaryzation(GrayImageArray,ImageThreshold,mt9v03x_image_Compress[0]);                          
+             -    //¶þÖµ»¯£¨Õ¼ÓÃºÜ¶àÖ¡ÂÊ£¬¿´¿´»¹ÄÜ²»ÄÜÓÅ»¯£©
+  279   1          //ErosionFilter(mt9v03x_image_Compress[0]);                                                          
              -    //°ËÁÚÓò¸¯Ê´ÂË²¨
-  135   1      
-  136   1      
-  137   1          //ÏÔÊ¾¶þÖµ»¯Í¼Ïñ£¬Õâ¸ö²»ÓÃ¶¯ÁË£¬ÊÇÎªÁË¸ú×î´óµÄ·Ö±æÂÊÇø·Ö£¬³ý·ÇÒ²ÓÐÒç³ötftµÄÏÔÊ¾ÇøÓòÔÙ¼Ó
-  138   1          #if CompressImage    
-  139   1          
-  140   1              tft180_show_gray_image(0, 0, GrayImage_Bina[0], GrayImage_Wide, GrayImage_Height, GrayImage_Wide,
-             - GrayImage_Height, 0);
-  141   1              
-  142   1          #else
+  280   1      
+  281   1          FindBoundary_EightNeighborhood(mt9v03x_image_Compress[0]);                                           
+             -                      //Ñ°ÕÒ×óÓÒ±ß½çµã
+  282   1      
+  283   1          //ÏÔÊ¾¶þÖµ»¯Í¼Ïñ£¬Õâ¸ö²»ÓÃ¶¯ÁË£¬ÊÇÎªÁË¸ú×î´óµÄ·Ö±æÂÊÇø·Ö£¬³ý·ÇÒ²ÓÐÒç³ötftµÄÏÔÊ¾ÇøÓòÔÙ¼Ó
+  284   1          #if CompressImage    
+  285   1          
+  286   1              tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayIma
+             -ge_Wide, GrayImage_Height, 0);
+  287   1              
+  288   1          #elif
                
-                       tft180_show_gray_image(0, 0, GrayImage_Bina[0], GrayImage_Wide, GrayImage_Height, GrayImage_Wide 
-             -/ 2, GrayImage_Height / 2, 0);
+                       tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayIma
+             -ge_Wide / 2, GrayImage_Height / 2, 0);
                
                    #endif        
-  147   1      
-  148   1          tft180_show_uint8(80, 70, ImageThreshold);
-  149   1      }
+  293   1      
+  294   1          /*µ÷ÊÔ´ó½ò·¨ãÐÖµ
+  295   1          tft180_show_uint8(80, 70, ImageThreshold);
+  296   1          */
+  297   1          
+  298   1          /*µ÷ÊÔ×î³¤°×ÁÐ
+  299   1          tft180_show_uint8(0, 102, FindMaxWhiteLine(GrayImageArray));
+  300   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),59,RGB565_RED);
+  301   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),58,RGB565_RED);
+  302   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),57,RGB565_RED);
+  303   1          */
+  304   1      
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 6   
+
+  305   1          /*µ÷ÊÔ×óÓÒ±ß½çµã
+  306   1          tft180_draw_point((uint16)LeftLinePos,59,RGB565_RED);
+  307   1          tft180_draw_point((uint16)LeftLinePos,58,RGB565_RED);
+  308   1          tft180_draw_point((uint16)LeftLinePos,57,RGB565_RED);
+  309   1          tft180_draw_point((uint16)RightLinePos,59,RGB565_RED);
+  310   1          tft180_draw_point((uint16)RightLinePos,58,RGB565_RED);
+  311   1          tft180_draw_point((uint16)RightLinePos,57,RGB565_RED);
+  312   1          */
+  313   1          tft180_show_uint8(0, 102, LeftLinePoint[50][0]);
+  314   1          tft180_show_uint8(0, 118, LeftLinePoint[50][1]);
+  315   1          
+  316   1          for (Temp = 0;Temp < GrayImage_Height;Temp++)
+  317   1          {
+  318   2              tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
+  319   2              //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
+  320   2          }
+  321   1      }
+  322          
+  323          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1392     ------
+  ecode size           =      1891     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      8100     ------
+  xdata size           =      6478     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -195,7 +378,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =    ------     ------
+  hconst size          =        33     ------
 End of Module Information.
 
 

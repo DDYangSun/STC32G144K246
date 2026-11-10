@@ -132,7 +132,7 @@ void ImageBinaryzation(uint8 GrayImage[GrayImage_Height][GrayImage_Wide],uint8 T
             if (GrayImage[i][j] < Threshold)
                 GrayImage_Bina[i][j] = 0;
             else
-                GrayImage_Bina[i][j] = 255;
+                GrayImage_Bina[i][j] = 0xFF;
         }
     }
 }

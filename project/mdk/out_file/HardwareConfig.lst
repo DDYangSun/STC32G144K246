@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  HardwareConfig                                                     09/11/26  22:31:31  PAGE 1   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     10/11/26  22:08:35  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
@@ -47,6 +47,7 @@ stmt  level    source
    35   2          }
    36   1      
    37   1      }
+   38          
 
 
 Module Information          Static   Overlayable
@@ -66,9 +67,9 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        36     ------
-C251 COMPILER V5.60.0,  HardwareConfig                                                     09/11/26  22:31:31  PAGE 2   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     10/11/26  22:08:35  PAGE 2   
 
+  hconst size          =        36     ------
 End of Module Information.
 
 

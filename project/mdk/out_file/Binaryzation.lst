@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  23:09:26  PAGE 1   
+C251 COMPILER V5.60.0,  Binaryzation                                                       10/11/26  22:08:35  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Binaryzation
@@ -66,7 +66,7 @@ stmt  level    source
    49          //              最大类间方差约 1.07e9，uint32 不会溢出；
    50          //              空类直接跳过，避免除零；双峰平台取中点，阈值更稳
    51          //-------------------------------------------------------------------------------------------------------
-C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  23:09:26  PAGE 2   
+C251 COMPILER V5.60.0,  Binaryzation                                                       10/11/26  22:08:35  PAGE 2   
 
              -------------
    52          uint8 Otsu_GetThreshold(uint16 *PixelValueNum,uint16 PixelNum)       //灰度直方图
@@ -134,7 +134,7 @@ stmt  level    source
   113   3                  high = i;
   114   3              }  
   115   2          }
-C251 COMPILER V5.60.0,  Binaryzation                                                       09/11/26  23:09:26  PAGE 3   
+C251 COMPILER V5.60.0,  Binaryzation                                                       10/11/26  22:08:35  PAGE 3   
 
   116   1      
   117   1          //取平均数
@@ -156,7 +156,7 @@ stmt  level    source
   132   3                  if (GrayImage[i][j] < Threshold)
   133   3                      GrayImage_Bina[i][j] = 0;
   134   3                  else
-  135   3                      GrayImage_Bina[i][j] = 255;
+  135   3                      GrayImage_Bina[i][j] = 0xFF;
   136   3              }
   137   2          }
   138   1      }

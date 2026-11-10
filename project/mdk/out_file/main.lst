@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               09/11/26  22:31:32  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               10/11/26  22:08:36  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -10,72 +10,34 @@ COMPILER INVOKED BY: D:\KEIL\C251\BIN\C251.EXE ..\user\main.c LARGE ROM(HUGE) WA
 
 stmt  level    source
 
-    1          /********************************************************************************************************
-             -*************
-    2          * STC32G144K Opensourec Library 即（STC32G144K 开源库）是一个基于官方 SDK 接口的第三方开源库
-    3          * Copyright (c) 2025 SEEKFREE 逐飞科技
-    4          *
-    5          * 本文件是STC32G144K开源库的一部分
-    6          *
-    7          * STC32G144K 开源库 是免费软件
-    8          * 您可以根据自由软件基金会发布的 GPL（GNU General Public License，即 GNU通用公共许可证）的条款
-    9          * 即 GPL 的第3版（即 GPL3.0）或（您选择的）任何后来的版本，重新发布和/或修改它
-   10          *
-   11          * 本开源库的发布是希望它能发挥作用，但并未对其作任何的保证
-   12          * 甚至没有隐含的适销性或适合特定用途的保证
-   13          * 更多细节请参见 GPL
-   14          *
-   15          * 您应该在收到本开源库的同时收到一份 GPL 的副本
-   16          * 如果没有，请参阅<https://www.gnu.org/licenses/>
-   17          *
-   18          * 额外注明：
-   19          * 本开源库使用 GPL3.0 开源许可证协议 以上许可申明为译文版本
-   20          * 许可申明英文版在 libraries/doc 文件夹下的 GPL3_permission_statement.txt 文件中
-   21          * 许可证副本在 libraries 文件夹下 即该文件夹下的 LICENSE 文件
-   22          * 欢迎各位使用并传播本程序 但修改内容时必须保留逐飞科技的版权声明（即本声明）
-   23          *
-   24          * 文件名称          
-   25          * 公司名称          成都逐飞科技有限公司
-   26          * 版本信息          查看 libraries/doc 文件夹内 version 文件 版本说明
-   27          * 开发环境          MDK FOR C251
-   28          * 适用平台          STC32G144K
-   29          * 店铺链接          https://seekfree.taobao.com/
-   30          *
-   31          * 修改记录
-   32          * 日期              作者           备注
-   33          * 2025-11-20        大W            first version
-   34          *********************************************************************************************************
-             -***********/
-   35          #include "zf_common_headfile.h"
-   36          #include "HardwareConfig.h"
-   37          #include "Image.h"
-   38          
-   39          void main(void)
-   40          {
-   41   1          clock_init(SYSTEM_CLOCK_96M);                   // 时钟配置及系统初始化<务必保留>
-   42   1          debug_init();                                   // 调试串口信息初始化
-   43   1          Hardware_Init();
-   44   1      
-   45   1          while(1)
-   46   1          {
-   47   2              if (FPS_Flag)
-   48   2              {
-   49   3                  tft180_show_uint16(65,87,FPS);
-   50   3            FPS = 0;
-   51   3                  FPS_Flag = 0;
-   52   3              }
-   53   2      
-   54   2              if (mt9v03x_finish_flag)
-C251 COMPILER V5.60.0,  main                                                               09/11/26  22:31:32  PAGE 2   
-
-   55   2              {
-   56   3                  Image_Process();
-   57   3                  mt9v03x_finish_flag = 0;
-   58   3                  FPS++;
-   59   3              }
-   60   2          }
-   61   1      }
-   62          
+    1          #include "zf_common_headfile.h"
+    2          #include "HardwareConfig.h"
+    3          #include "Image.h"
+    4          
+    5          void main(void)
+    6          {
+    7   1          clock_init(SYSTEM_CLOCK_96M);                   // 时钟配置及系统初始化<务必保留>
+    8   1          debug_init();                                   // 调试串口信息初始化
+    9   1          Hardware_Init();
+   10   1      
+   11   1          while(1)
+   12   1          {
+   13   2              if (FPS_Flag)
+   14   2              {
+   15   3                  tft180_show_uint16(65,87,FPS);
+   16   3            FPS = 0;
+   17   3                  FPS_Flag = 0;
+   18   3              }
+   19   2      
+   20   2              if (mt9v03x_finish_flag)
+   21   2              {
+   22   3                  Image_Process();
+   23   3                  mt9v03x_finish_flag = 0;
+   24   3                  FPS++;
+   25   3              }
+   26   2          }
+   27   1      }
+   28          
 
 
 Module Information          Static   Overlayable
