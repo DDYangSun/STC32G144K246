@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 1   
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  01:05:25  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Image
@@ -14,361 +14,275 @@ stmt  level    source
     2          #include "Binaryzation.h"
     3          #include "Image.h"
     4          
-    5          uint16 PixelNum;                                                            //ÏñËØ×ÜÊý
-    6          uint16 PixelValueNum[256];                                                  //»Ò¶ÈÖ±·½Í¼
-    7          
-    8          uint8 mt9v03x_image_Compress[GrayImage_Height][GrayImage_Wide];             //Ñ¹ËõºóÏñËØÊý×é
+    5          #pragma OPTIMIZE(3,SPEED)
+    6          
+    7          uint16 PixelNum;                                                            //ÏñËØ×ÜÊý
+    8          uint16 PixelValueNum[256];                                                  //»Ò¶ÈÖ±·½Í¼
     9          
-   10          uint8 LeftLinePos = 0,RightLinePos = 255;                                     //×óÓÒ±ß½çµã
+   10          uint8 mt9v03x_image_Compress[GrayImage_Height][GrayImage_Wide];             //¶þÖµ»¯/Ñ¹ËõºóÏñËØÊý×é
    11          
-   12          
-   13          void Image_Init()
-   14          {
-   15   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);                         // ·Ö±æÂÊ¹Ì¶¨£¬Ö»ËãÒ»´Î
-   16   1      
-   17   1      }
-   18          
-   19          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ63 * 40·Ö±æÂÊ
-   20          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
-   21          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
-   22          // ·µ»Ø²ÎÊý     void
-   23          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»188 * 120 ±ä³É 63 * 40
-   24          //-------------------------------------------------------------------------------------------------------
+   12          uint8 LeftLinePoint[GrayImage_Height][2];                                   //×ó±ßÏß£º°´ÐÐ´æ x/y
+   13          uint8 RightLinePoint[GrayImage_Height][2];                                  //ÓÒ±ßÏß£º°´ÐÐ´æ x/y
+   14          uint16 LeftLineCount = 0;                                                   //×ó±ßÏßÓÐÐ§ÐÐÊý
+   15          uint16 RightLineCount = 0;                                                  //ÓÒ±ßÏßÓÐÐ§ÐÐÊý
+   16          uint8 LineValid = 0;                                                        //±¾Ö¡ÏßÊÇ·ñÓÐÐ§
+   17          uint16 LastCenter = 0;                                                      //ÉÏÒ»Ö¡µ×ÏßÖÐÐÄ£¬×÷Îª±¾Ö¡ÆðÊ
+             -¼ËÑË÷µã
+   18          uint8 LeftLinePos = 0,RightLinePos = 255;                                   //µ×Ïß×óÓÒ±ß½ç£¨µ÷ÊÔÓÃ£©
+   19          
+   20          void Image_Init(void)
+   21          {
+   22   1          PixelNum = Get_PixelNum(MT9V03X_W, MT9V03X_H);                          // ·Ö±æÂÊ¹Ì¶¨£¬Ö»ËãÒ»´Î
+   23   1          LastCenter = GrayImage_Wide / 2;
+   24   1      }
+   25          
+   26          //-------------------------------------------------------------------------------------------------------
              -------------
-   25          void GrayImage_Compress_63_40(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
+   27          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ63 * 40·Ö±æÂÊ
+   28          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   29          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   30          // ·µ»Ø²ÎÊý     void
+   31          // ±¸×¢ÐÅÏ¢     188 * 120 ±ä³É 63 * 40
+   32          //-------------------------------------------------------------------------------------------------------
+             -------------
+   33          void GrayImage_Compress_63_40(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
              - 3][MT9V03X_W / 3 + 1])
-   26          {
-   27   1          uint16 i,j;
-   28   1          uint16 u = 0,v = 0;
-   29   1      
-   30   1          for (i = 0;i < MT9V03X_H;i += 3)
-   31   1          {
-   32   2              for (j  = 0;j < MT9V03X_W;j += 3)
-   33   2              {
-   34   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
-   35   3                  v++;
-   36   3              }
-   37   2              v = 0;
-   38   2              u++;
-   39   2          }
-   40   1      }
-   41          
-   42          
-   43          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ94 * 60·Ö±æÂÊ
-   44          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
-   45          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
-   46          // ·µ»Ø²ÎÊý     void
-   47          // ±¸×¢ÐÅÏ¢     Ã¿Ö¡Í³¼ÆÇ°±ØÐëÇåÁã£»188 * 120 ±ä³É 94 * 60
-   48          //-------------------------------------------------------------------------------------------------------
+   34          {
+   35   1          uint16 i,j;
+   36   1          uint16 u = 0,v = 0;
+   37   1      
+   38   1          for (i = 0;i < MT9V03X_H;i += 3)
+   39   1          {
+   40   2              for (j  = 0;j < MT9V03X_W;j += 3)
+   41   2              {
+   42   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
+   43   3                  v++;
+   44   3              }
+   45   2              v = 0;
+   46   2              u++;
+   47   2          }
+   48   1      }
+   49          
+   50          //-------------------------------------------------------------------------------------------------------
              -------------
-   49          void GrayImage_Compress_94_60(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
+   51          // º¯Êý¼ò½é     ½«ÉãÏñÍ·´«ÊäÍ¼ÏñÑ¹ËõÖÁ94 * 60·Ö±æÂÊ
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  01:05:25  PAGE 2   
+
+   52          // ²ÎÊýËµÃ÷     GrayImage               »Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   53          // ²ÎÊýËµÃ÷     GrayImage_Compress      Ñ¹Ëõºó»Ò¶ÈÍ¼ÏñÊ×µØÖ·
+   54          // ·µ»Ø²ÎÊý     void
+   55          // ±¸×¢ÐÅÏ¢     188 * 120 ±ä³É 94 * 60
+   56          //-------------------------------------------------------------------------------------------------------
+             -------------
+   57          void GrayImage_Compress_94_60(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
              - 2][MT9V03X_W / 2])
-   50          {
-   51   1          uint16 i,j;
-   52   1          uint16 u = 0,v = 0;
-C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 2   
+   58          {
+   59   1          uint16 i,j;
+   60   1          uint16 u = 0,v = 0;
+   61   1      
+   62   1          for (i = 0;i < MT9V03X_H;i += 2)
+   63   1          {
+   64   2              for (j  = 0;j < MT9V03X_W;j += 2)
+   65   2              {
+   66   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
+   67   3                  v++;
+   68   3              }
+   69   2              v = 0;
+   70   2              u++;
+   71   2          }
+   72   1      }
+   73          
+   74          //-------------------------------------------------------------------------------------------------------
+             -------------
+   75          // º¯Êý¼ò½é     ÔÚÒ»ÐÐÀïÕÒ¡°Àë center ×î½ü¡¢¿í¶ÈºÏ·¨¡±µÄÈüµÀÏßÓÎ³Ì
+   76          // ²ÎÊýËµÃ÷     image       ¶þÖµÍ¼
+   77          // ²ÎÊýËµÃ÷     y           ÐÐºÅ
+   78          // ²ÎÊýËµÃ÷     center      ÆÚÍûÖÐÐÄ£¨ÉÏÒ»ÐÐ/ÉÏÒ»Ö¡£©
+   79          // ²ÎÊýËµÃ÷     left/right  Êä³öÓÎ³Ì×óÓÒ±ß½ç
+   80          // ·µ»Ø²ÎÊý     uint8       1-ÕÒµ½ 0-Ã»ÓÐ
+   81          // ±¸×¢ÐÅÏ¢     Ö»×öÐÐÄÚÉ¨Ãè£¬²»¿çÐÐ¸ú±ß½ç£¬Òò´Ë²»»áÑØ×ÅºáÏßÅÜ
+   82          //-------------------------------------------------------------------------------------------------------
+             -------------
+   83          static uint8 FindRunInRow(uint8 image[GrayImage_Height][GrayImage_Wide], uint16 y, uint16 center, uint16 
+             -*left, uint16 *right)
+   84          {
+   85   1          uint16 x = 0, x0, x1, width, runCenter, dist, bestDist = 0xFFFF;
+   86   1          uint8 found = 0;
+   87   1      
+   88   1          while (x < GrayImage_Wide)
+   89   1          {
+   90   2              if (image[y][x] == TRACK_LINE_COLOR)
+   91   2              {
+   92   3                  x0 = x;
+   93   3                  while ((x + 1 < GrayImage_Wide) && (image[y][x + 1] == TRACK_LINE_COLOR))
+   94   3                  {
+   95   4                      x++;
+   96   4                  }
+   97   3                  x1 = x;
+   98   3                  width = x1 - x0 + 1;
+   99   3      
+  100   3                  // Ì«Õ­ÊÇÔëµã£¬Ì«¿íÊÇ±³¾°/ÕûÐÐ°×£¬¶¼²»ËãÈüµÀÏß
+  101   3                  if ((width >= TRACK_LINE_MIN_WIDTH) && (width <= TRACK_LINE_MAX_WIDTH))
+  102   3                  {
+  103   4                      runCenter = (x0 + x1) >> 1;
+  104   4                      dist = (runCenter > center) ? (runCenter - center) : (center - runCenter);
+  105   4                      if (dist < bestDist)
+  106   4                      {
+  107   5                          bestDist = dist;
+  108   5                          *left = x0;
+  109   5                          *right = x1;
+  110   5                          found = 1;
+  111   5                      }
+  112   4                  }
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  01:05:25  PAGE 3   
 
-   53   1      
-   54   1          for (i = 0;i < MT9V03X_H;i += 2)
-   55   1          {
-   56   2              for (j  = 0;j < MT9V03X_W;j += 2)
-   57   2              {
-   58   3                  GrayImage_Compress[u][v] = GrayImage[i][j];
-   59   3                  v++;
-   60   3              }
-   61   2              v = 0;
-   62   2              u++;
-   63   2          }
-   64   1      }
-   65          
-   66          
-   67          // ÁÚÓò°×µãÊýÁ¿ãÐÖµ£¬0~8
-   68          #define THR_MAX 6    // ÁÚÓò°×µã¡Ý6£¬ÖÐÐÄºÚµã·­×ª³É°×µã
-   69          #define THR_MIN 2    // ÁÚÓò°×µã¡Ü2£¬ÖÐÐÄ°×µã·­×ª³ÉºÚµã
-   70          
-   71          /*
-   72          // È«¾ÖÁÙÊ±»º´æ£¬²»Òª·ÅÕ»Àï£¬Ê¡Ê±¼ä¡¢·ÀÕ»Òç³ö
-   73          xdata uint8 FilterTemp[GrayImage_Height][GrayImage_Wide];
-   74          
-   75          void ErosionFilter(uint8 img[GrayImage_Height][GrayImage_Wide])
-   76          {
-   77              uint16 i,j;
-   78              uint8 cnt;
-   79              for (i = 1; i < GrayImage_Height - 1; i++)
-   80              {
-   81                  for (j = 1; j < GrayImage_Wide - 1; j++)
-   82                  {
-   83                      // Í³¼Æ°ËÁÚÓòÀïÃæ255µÄ¸öÊý£¬´úÌæ¼Ó·¨
-   84                      cnt = 0;
-   85                      if(img[i-1][j-1]) cnt++;
-   86                      if(img[i-1][j])   cnt++;
-   87                      if(img[i-1][j+1]) cnt++;
-   88                      if(img[i][j-1])   cnt++;
-   89                      if(img[i][j+1])   cnt++;
-   90                      if(img[i+1][j-1]) cnt++;
-   91                      if(img[i+1][j])   cnt++;
-   92                      if(img[i+1][j+1]) cnt++;
-   93          
-   94                      FilterTemp[i][j] = img[i][j]; // Ä¬ÈÏ²»±ä
-   95          
-   96                      if(cnt >= THR_MAX && img[i][j] == 0)
-   97                      {
-   98                          FilterTemp[i][j] = 255;
-   99                      }
-  100                      else if(cnt <= THR_MIN && img[i][j] == 255)
-  101                      {
-  102                          FilterTemp[i][j] = 0;
-  103                      }
-  104                  }
-  105              }
-  106              // »ØÐ´
-  107              for (i = 1; i < GrayImage_Height - 1; i++)
-  108              {
-  109                  for (j = 1; j < GrayImage_Wide - 1; j++)
-  110                  {
-  111                      img[i][j] = FilterTemp[i][j];
-  112                  }
-  113              }
-  114          }
-  115          */
-  116          /*
-  117          //°ËÁÚÓò¸¯Ê´ÂË²¨
-  118          void ErosionFilter(uint8 GrayImage[GrayImage_Height][GrayImage_Wide])
-C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 3   
+  113   3              }
+  114   2              x++;
+  115   2          }
+  116   1      
+  117   1          return found;
+  118   1      }
+  119          
+  120          //-------------------------------------------------------------------------------------------------------
+             -------------
+  121          // º¯Êý¼ò½é     °´ÐÐÉ¨ÃèÈüµÀÏß
+  122          // ²ÎÊýËµÃ÷     image       ¶þÖµÍ¼
+  123          // ·µ»Ø²ÎÊý     void
+  124          // ±¸×¢ÐÅÏ¢     µ×ÐÐÕÒÏß£¬È»ºóÖðÐÐÍùÉÏÕÒ×î½üµÄºÏ·¨ÓÎ³Ì£»ÕÒ²»µ½¾ÍÍ££¬²»ÔÙÌîÀ¬»øµã
+  125          //-------------------------------------------------------------------------------------------------------
+             -------------
+  126          static void FindLine(uint8 image[GrayImage_Height][GrayImage_Wide])
+  127          {
+  128   1          uint16 y, left, right, center;
+  129   1      
+  130   1          LineValid = 0;
+  131   1          LeftLineCount = 0;
+  132   1          RightLineCount = 0;
+  133   1      
+  134   1          // µ×ÐÐ£º´ÓÉÏÒ»Ö¡ÖÐÐÄ¸½½üÕÒÏß
+  135   1          if (!FindRunInRow(image, GrayImage_Height - 1, LastCenter, &left, &right))
+  136   1          {
+  137   2              return;
+  138   2          }
+  139   1      
+  140   1          LeftLinePos = (uint8)left;
+  141   1          RightLinePos = (uint8)right;
+  142   1          LeftLinePoint[GrayImage_Height - 1][0] = (uint8)left;
+  143   1          LeftLinePoint[GrayImage_Height - 1][1] = GrayImage_Height - 1;
+  144   1          RightLinePoint[GrayImage_Height - 1][0] = (uint8)right;
+  145   1          RightLinePoint[GrayImage_Height - 1][1] = GrayImage_Height - 1;
+  146   1          LeftLineCount = 1;
+  147   1          RightLineCount = 1;
+  148   1          center = (left + right) >> 1;
+  149   1          LastCenter = center;
+  150   1      
+  151   1          // ÖðÐÐÍùÉÏ
+  152   1          for (y = GrayImage_Height - 1; y > 0; y--)
+  153   1          {
+  154   2              if (!FindRunInRow(image, y - 1, center, &left, &right))
+  155   2              {
+  156   3                  break;
+  157   3              }
+  158   2      
+  159   2              LeftLinePoint[y - 1][0] = (uint8)left;
+  160   2              LeftLinePoint[y - 1][1] = y - 1;
+  161   2              RightLinePoint[y - 1][0] = (uint8)right;
+  162   2              RightLinePoint[y - 1][1] = y - 1;
+  163   2              LeftLineCount++;
+  164   2              RightLineCount++;
+  165   2              center = (left + right) >> 1;
+  166   2          }
+  167   1      
+  168   1          if (LeftLineCount < TRACK_LINE_MIN_ROWS)
+  169   1          {
+  170   2              return;
+  171   2          }
+  172   1      
+  173   1          LineValid = 1;
+  174   1      }
+  175          
+  176          void Image_Process(void)
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  01:05:25  PAGE 4   
 
-  119          {
-  120              uint16 i,j;
-  121          
-  122              for (i = 1;i < GrayImage_Height - 1;i++)
-  123              {
-  124                  for (j = 1;j < GrayImage_Wide - 1;j++)
-  125                  {
-  126                      if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[i][j 
-             -- 1]
-  127                          + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][
-             -j + 1] > FilterThreshold_Max 
-  128                          && GrayImage[i][j] == 0)
-  129                      {
-  130                          GrayImage[i][j] = 255;
-  131                      }
-  132                      else if (GrayImage[i - 1][j - 1] + GrayImage[i - 1][j] + GrayImage[i - 1][j + 1] + GrayImage[
-             -i][j - 1]
-  133                      + GrayImage[i][j + 1] + GrayImage[i + 1][j - 1] + GrayImage[i + 1][j] + GrayImage[i + 1][j + 
-             -1] < FilterThreshold_Min 
-  134                      && GrayImage[i][j] == 255)
-  135                      {
-  136                          GrayImage[i][j] = 0;
-  137                      }
-  138                  }
-  139          
-  140              }
-  141          
-  142          }
-  143          */
-  144          
-  145          //·½ÏòÏòÁ¿
-  146          int8 Dir[8][2] = {
-  147          {0,1},      //ÉÏ
-  148          {1,1},      //ÓÒÉÏ
-  149          {1,0},      //ÓÒ
-  150          {1,-1},     //ÓÒÏÂ
-  151          {0,-1},     //ÏÂ
-  152          {-1,-1},    //×óÏÂ
-  153          {-1,0},     //×ó
-  154          {-1,1}      //×óÉÏ
-  155          };
-  156          
-  157          //Ñ°ÕÒ×î³¤°×ÁÐ
-  158          uint8 FindMaxWhiteLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide])
-  159          {
-  160   1          uint8 Count_Max = 0,Count = 0;
-  161   1          uint8 CountMaxPos = 0;
-  162   1      
-  163   1          uint16 i = 0,j = 0;
-  164   1          for (i = 0;i < GrayImage_Wide;i++)
-  165   1          {
-  166   2              j = 0;
-  167   2              Count = 0;
-  168   2              while (mt9v03x_image[GrayImage_Height - 1 - j][i] == 255 && j < GrayImage_Height - 1)
-  169   2              {
-  170   3                  Count++;
-  171   3                  j++;
-  172   3              }
-  173   2              if (Count > Count_Max)
-  174   2              {
-  175   3                  Count_Max = Count;
-  176   3                  CountMaxPos = i;
-  177   3              }
-  178   2          }
-  179   1      
-  180   1          return CountMaxPos;
-C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 4   
-
-  181   1      }
-  182          
-  183          //Ñ°ÕÒ×óÓÒ±ß½çµã
-  184          void FindBoundaryPoint(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide],uint8 StartPos)
-  185          {
-  186   1          uint8 i = 0;
+  177          {
+  178   1          uint8 ImageThreshold;
+  179   1          uint16 Temp;
+  180   1      
+  181   1          // Ñ¹ËõÍ¼Ïñ£¨0 ±íÊ¾²»Ñ¹Ëõ£»ÕâÀï±ØÐëÓÃ #elif£¬²»ÄÜÓÃ #else if£©
+  182   1      #if CompressImage == 2
+                   GrayImage_Compress_63_40(mt9v03x_image[0],GrayImageArray);
+               #elif CompressImage == 1
+  185   1          GrayImage_Compress_94_60(mt9v03x_image[0],GrayImageArray);
+  186   1      #endif
   187   1      
-  188   1          //Ïò×óÕÒ±ß½çµã
-  189   1          i = 0;
-  190   1          while (mt9v03x_image[GrayImage_Height - 1][StartPos - i] == 255 && i < StartPos)
-  191   1          {
-  192   2              i++;
-  193   2          }
-  194   1          LeftLinePos = StartPos - i + 1;
-  195   1      
-  196   1          //ÏòÓÒÕÒ±ß½çµã
-  197   1          i = 0;
-  198   1          while (mt9v03x_image[GrayImage_Height - 1][StartPos + i] == 255 && i < GrayImage_Wide - StartPos - 1)
-  199   1          {
-  200   2              i++;
-  201   2          }
-  202   1          RightLinePos = StartPos + i - 1;
-  203   1      }
-  204          
-  205          //ÅÀÏß
-  206          uint8 LeftLinePoint[GrayImage_Height][2],RightLinePoint[GrayImage_Height][2];   //×óÓÒ±ßÏß×ø±êÖµ
-  207          void FindLeftBoundary_ClimbLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide])
-  208          {
-  209   1          int8 x0 = 0,y0 = 0;
-  210   1          int8 x1 = 0,y1 = 0;    
-  211   1          uint8 i = 0,j = 0;
-  212   1      
-  213   1          LeftLinePoint[0][0] = LeftLinePos;
-  214   1          LeftLinePoint[0][1] = GrayImage_Height - 1;
-  215   1      
-  216   1          while (j < GrayImage_Height - 1)       //ÕâÀïÐ¡ÓÚµÈÓÚµÄÊÇ±ßÏßÊý×é³¤¶È       j = 0Ê±´æµÄÊÇ1µÄÖµ£¬Ò²Òª¿
-             -¼ÂÇÊý×é³¤¶È£¬ÄÇÃ´×î´óÖµÓ¦¸ÃÊÇGrayImage_Height - 2
-  217   1          {
-  218   2              for (i = 0;i < 8;i++)               //Ë³Ê±ÕëÐý×ª
-  219   2              {
-  220   3                  x0 = (int8)(LeftLinePoint[j][0]) + Dir[(6 + i) % 8][0];
-  221   3                  y0 = (int8)(LeftLinePoint[j][1]) + Dir[(6 + i) % 8][1];
-  222   3      
-  223   3                  if (x0 < 0 || y0 < 0)
-  224   3                      continue;
-  225   3                  
-  226   3                  x1 = (int8)(LeftLinePoint[j][0]) + Dir[(6 + i + 1) % 8][0];
-  227   3                  y1 = (int8)(LeftLinePoint[j][1]) + Dir[(6 + i + 1) % 8][1];
-  228   3      
-  229   3                  if (x1 < 0 || y1 < 0)
-  230   3                      continue;
-  231   3                  
-  232   3                  if (mt9v03x_image[y0][x0] == 0 && mt9v03x_image[y1][x1] == 255)
-  233   3                  {
-  234   4                      break;
-  235   4                  }
-  236   3              }
-  237   2              j++;
-  238   2              if (LeftLinePoint[j][1] <= LeftLinePoint[j - 1][1])
-  239   2              {
-  240   3                  LeftLinePoint[j][0] = (uint8)x1;
-  241   3                  LeftLinePoint[j][1] = (uint8)y1;
-  242   3              }
-  243   2          }
-  244   1      }
-  245          
-C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 5   
-
-  246          //°ËÁÚÓòËã·¨Ñ°ÕÒ±ßÏß
-  247          void FindBoundary_EightNeighborhood(uint8 mt9v03x_image_Eight[GrayImage_Height][GrayImage_Wide])
-  248          {
-  249   1          uint8 MaxWhiteLinePos = 0;
-  250   1      
-  251   1          //Ñ°ÕÒ×óÓÒ±ß½çµã
-  252   1          MaxWhiteLinePos = FindMaxWhiteLine(mt9v03x_image_Eight[0]);
-  253   1          FindBoundaryPoint(mt9v03x_image_Eight[0],MaxWhiteLinePos);
-  254   1      
-  255   1          //ÅÀÏß
-  256   1          FindLeftBoundary_ClimbLine(mt9v03x_image_Eight[0]);
-  257   1      }
-  258          uint8 Temp;
-  259          void Image_Process(void)
-  260          {
-  261   1          uint8 ImageThreshold;
-  262   1      
-  263   1          //Ñ¹ËõÍ¼Ïñ(ºóÐø¿ÉÒÔÔÚºóÃæÐ´else if¸üÐÂÑ¹Ëõ·Ö±æÂÊ)
-  264   1          #if CompressImage == 2
-                   
-                       //Ñ¹ËõÍ¼ÏñÖÁ63 * 40
-                       GrayImage_Compress_63_40(mt9v03x_image[0],GrayImageArray);         
-                       
-                   #else if CompressImage == 1
-  270   1       
-  271   1              //Ñ¹ËõÍ¼ÏñÖÁ94 * 60
-  272   1              GrayImage_Compress_94_60(mt9v03x_image[0],GrayImageArray);         
-  273   1      
-  274   1          #endif
-  275   1      
-  276   1          DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                    
+  188   1          DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                    
              -    //×ª»»³É»Ò¶ÈÖ±·½Í¼
-  277   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
+  189   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
              -    //»ñÈ¡´ó½ò·¨ãÐÖµ
-  278   1          ImageBinaryzation(GrayImageArray,ImageThreshold,mt9v03x_image_Compress[0]);                          
-             -    //¶þÖµ»¯£¨Õ¼ÓÃºÜ¶àÖ¡ÂÊ£¬¿´¿´»¹ÄÜ²»ÄÜÓÅ»¯£©
-  279   1          //ErosionFilter(mt9v03x_image_Compress[0]);                                                          
-             -    //°ËÁÚÓò¸¯Ê´ÂË²¨
-  280   1      
-  281   1          FindBoundary_EightNeighborhood(mt9v03x_image_Compress[0]);                                           
-             -                      //Ñ°ÕÒ×óÓÒ±ß½çµã
-  282   1      
-  283   1          //ÏÔÊ¾¶þÖµ»¯Í¼Ïñ£¬Õâ¸ö²»ÓÃ¶¯ÁË£¬ÊÇÎªÁË¸ú×î´óµÄ·Ö±æÂÊÇø·Ö£¬³ý·ÇÒ²ÓÐÒç³ötftµÄÏÔÊ¾ÇøÓòÔÙ¼Ó
-  284   1          #if CompressImage    
-  285   1          
-  286   1              tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayIma
-             -ge_Wide, GrayImage_Height, 0);
-  287   1              
-  288   1          #elif
-               
-                       tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayIma
-             -ge_Wide / 2, GrayImage_Height / 2, 0);
-               
-                   #endif        
-  293   1      
-  294   1          /*µ÷ÊÔ´ó½ò·¨ãÐÖµ
-  295   1          tft180_show_uint8(80, 70, ImageThreshold);
-  296   1          */
-  297   1          
-  298   1          /*µ÷ÊÔ×î³¤°×ÁÐ
-  299   1          tft180_show_uint8(0, 102, FindMaxWhiteLine(GrayImageArray));
-  300   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),59,RGB565_RED);
-  301   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),58,RGB565_RED);
-  302   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),57,RGB565_RED);
-  303   1          */
-  304   1      
-C251 COMPILER V5.60.0,  Image                                                              11/11/26  00:52:06  PAGE 6   
+  190   1          ImageBinaryzation(GrayImageArray,ImageThreshold,mt9v03x_image_Compress[0]);                          
+             -    //¶þÖµ»¯
+  191   1      
+  192   1          FindLine(mt9v03x_image_Compress);                                                                    
+             -     //°´ÐÐÉ¨Ãè×óÓÒ±ßÏß
+  193   1      
+  194   1          //ÏÔÊ¾¶þÖµ»¯Í¼Ïñ
+  195   1      #if CompressImage
+  196   1          tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayImage_W
+             -ide, GrayImage_Height, ImageThreshold);
+  197   1      #else
+                   tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayImage_W
+             -ide / 2, GrayImage_Height / 2, ImageThreshold);
+               #endif
+  200   1      
+  201   1          //µ÷ÊÔ£ºÖ»»­ÓÐÐ§µã£¬ÇÒ»­Ö®Ç°×ö×ø±ê¼ì²é£¬±ÜÃâ tft180_draw_point µÄ zf_assert ËÀÑ­»·
+  202   1          if (LineValid)
+  203   1          {
+  204   2              uint16 drawX, drawY;
+  205   2      
+  206   2              for (Temp = GrayImage_Height - LeftLineCount; Temp < GrayImage_Height; Temp++)
+  207   2              {
+  208   3                  drawX = LeftLinePoint[Temp][0];
+  209   3                  drawY = LeftLinePoint[Temp][1];
+  210   3      
+  211   3      #if CompressImage == 0
+                           drawX >>= 1;
+                           drawY >>= 1;
+               #endif
+  215   3      
+  216   3                  if ((drawX < tft180_x_max) && (drawY < tft180_y_max))
+  217   3                  {
+  218   4                      tft180_draw_point(drawX, drawY, RGB565_RED);
+  219   4                  }
+  220   3              }
+  221   2              for (Temp = GrayImage_Height - LeftLineCount; Temp < GrayImage_Height; Temp++)
+  222   2              {
+  223   3                  drawX = LeftLinePoint[Temp][0] - 1;
+  224   3                  drawY = LeftLinePoint[Temp][1];
+  225   3      
+  226   3      #if CompressImage == 0
+                           drawX >>= 1;
+                           drawY >>= 1;
+               #endif
+  230   3      
+  231   3                  if ((drawX < tft180_x_max) && (drawY < tft180_y_max))
+  232   3                  {
+  233   4                      tft180_draw_point(drawX, drawY, RGB565_RED);
+  234   4                  }
+  235   3              }
+  236   2          }
+C251 COMPILER V5.60.0,  Image                                                              11/11/26  01:05:25  PAGE 5   
 
-  305   1          /*µ÷ÊÔ×óÓÒ±ß½çµã
-  306   1          tft180_draw_point((uint16)LeftLinePos,59,RGB565_RED);
-  307   1          tft180_draw_point((uint16)LeftLinePos,58,RGB565_RED);
-  308   1          tft180_draw_point((uint16)LeftLinePos,57,RGB565_RED);
-  309   1          tft180_draw_point((uint16)RightLinePos,59,RGB565_RED);
-  310   1          tft180_draw_point((uint16)RightLinePos,58,RGB565_RED);
-  311   1          tft180_draw_point((uint16)RightLinePos,57,RGB565_RED);
-  312   1          */
-  313   1          tft180_show_uint8(0, 102, LeftLinePoint[50][0]);
-  314   1          tft180_show_uint8(0, 118, LeftLinePoint[50][1]);
-  315   1          
-  316   1          for (Temp = 0;Temp < GrayImage_Height;Temp++)
-  317   1          {
-  318   2              tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
-  319   2              //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
-  320   2          }
-  321   1      }
-  322          
-  323          
+  237   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1891     ------
+  ecode size           =      1190     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      6478     ------
+  xdata size           =      6403         18
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -378,7 +292,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        33     ------
+  hconst size          =        39     ------
 End of Module Information.
 
 

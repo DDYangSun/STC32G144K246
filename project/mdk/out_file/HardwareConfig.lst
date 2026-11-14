@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  HardwareConfig                                                     10/11/26  22:08:35  PAGE 1   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     11/11/26  01:03:19  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
@@ -67,7 +67,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-C251 COMPILER V5.60.0,  HardwareConfig                                                     10/11/26  22:08:35  PAGE 2   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     11/11/26  01:03:19  PAGE 2   
 
   hconst size          =        36     ------
 End of Module Information.
