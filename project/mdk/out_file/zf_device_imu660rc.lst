@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 1   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE zf_device_imu660rc
@@ -66,7 +66,7 @@ stmt  level    source
    51          *                   SDA/SDI           查看 zf_device_imu660rc.h 中 IMU660RC_SDA_PIN 宏定义
    52          *                   VCC               3.3V电源
    53          *                   GND               电源地
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 2   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 2   
 
    54          *                   其余引脚悬空
    55          *                   ------------------------------------
@@ -134,7 +134,7 @@ stmt  level    source
   111            //------------------------------------------------------------------------------------------------------
              --------------
   112            static void imu660rc_write_registers(uint8 reg, const uint8 *dat, uint32 len)
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 3   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 3   
 
   113            {
   114   1          IMU660RC_CS(0);
@@ -202,7 +202,7 @@ stmt  level    source
                    {
                      IMU660RC_SCK (0);
                      IMU660RC_MOSI(byte&0x80);
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 4   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 4   
 
                      byte <<= 1;
                      IMU660RC_SCK (1);
@@ -270,7 +270,7 @@ stmt  level    source
                
                
                  //------------------------------------------------------------------------------------------------------
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 5   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 5   
 
              --------------
                  // 函数简介     IMU660RC 写寄存器
@@ -338,7 +338,7 @@ stmt  level    source
                  {
                    IMU660RC_CS(0);
                    imu660rc_simspi_r_reg_bytes(reg | IMU660RC_SPI_R, dat, len);
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 6   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 6   
 
                    IMU660RC_CS(1);
                  }
@@ -406,7 +406,7 @@ stmt  level    source
   348   3                  // Just need to adjust the exponent and shift
   349   3                  return f_sgn + (((uint32)(h & 0x7fffu) + 0x1c000u) << 13);
   350   3              }
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 7   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 7   
 
   351   2          }
   352   1      }
@@ -474,7 +474,7 @@ stmt  level    source
   410   1          euler[2] = 0 > euler[2] ? euler[2] + 360 : euler[2];
   411   1          
   412   1          *roll   = euler[0];
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 8   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 8   
 
   413   1          *pitch  = euler[1];
   414   1          *yaw    = euler[2];
@@ -542,7 +542,7 @@ stmt  level    source
   467   2              imu660rc_acc_x =((uint16)dat[1] << 8) | dat[0];
   468   2              imu660rc_acc_y =((uint16)dat[3] << 8) | dat[2];
   469   2              imu660rc_acc_z =((uint16)dat[5] << 8) | dat[4];
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 9   
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 9   
 
   470   2          }
   471   1      }
@@ -610,7 +610,7 @@ stmt  level    source
   526   2              // 四元数归一化
   527   2              quarternion_normalize(imu660rc_quarternion, buff);
   528   2              // 四元数转欧拉角
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 10  
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 10  
 
   529   2              quarternion_to_euler(imu660rc_quarternion, &imu660rc_roll, &imu660rc_pitch, &imu660rc_yaw);
   530   2              
@@ -678,7 +678,7 @@ stmt  level    source
                #endif
   586   1      
   587   1          system_delay_ms(10);
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 11  
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 11  
 
   588   1      
   589   1          do
@@ -746,7 +746,7 @@ stmt  level    source
   651   4                      imu660rc_transition_factor[1] = 228.5714;
   652   4                  }break;
   653   3                  case IMU660RC_GYRO_SAMPLE_SGN_250DPS:
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 12  
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 12  
 
   654   3                  {
   655   4                      imu660rc_write_register(IMU660RC_CTRL6, 0x01);
@@ -814,7 +814,7 @@ stmt  level    source
   717   3                  gpio_int_irq_handlers[((IMU660RC_INT2_PIN & 0X0F00) >> 8)][(IMU660RC_INT2_PIN & 0X000F)] = im
              -u660rc_callback;//设置中断回调函数
   718   3                  exit_init(IMU660RC_INT2_PIN,RISING_EDGE);// 开启中断检测引脚，上升沿中断  
-C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 08/11/26  17:12:38  PAGE 13  
+C251 COMPILER V5.60.0,  zf_device_imu660rc                                                 14/11/26  20:46:06  PAGE 13  
 
   719   3            interrupt_set_priority(0X50 + ((IMU660RC_INT2_PIN & 0X0F00) >> 8), 2);//中断优先级为2
   720   3            
