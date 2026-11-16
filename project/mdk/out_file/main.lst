@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               14/11/26  20:46:08  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               16/11/26  14:40:27  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -13,37 +13,41 @@ stmt  level    source
     1          #include "zf_common_headfile.h"
     2          #include "HardwareConfig.h"
     3          #include "Image.h"
-    4          
-    5          void main(void)
-    6          {
-    7   1          clock_init(SYSTEM_CLOCK_96M);                   // 时钟配置及系统初始化<务必保留>
-    8   1          debug_init();                                   // 调试串口信息初始化
-    9   1          Hardware_Init();
-   10   1      
-   11   1          while(1)
-   12   1          {
-   13   2              if (FPS_Flag)
-   14   2              {
-   15   3                  tft180_show_uint16(65,87,FPS);
-   16   3            FPS = 0;
-   17   3                  FPS_Flag = 0;
-   18   3              }
-   19   2      
-   20   2              if (mt9v03x_finish_flag)
-   21   2              {
-   22   3                  Image_Process();
-   23   3                  mt9v03x_finish_flag = 0;
-   24   3                  FPS++;
-   25   3              }
-   26   2          }
-   27   1      }
-   28          
+    4          #include "Servo.h"
+    5          #include "Key.h"
+    6          
+    7          void main(void)
+    8          {
+    9   1          clock_init(SYSTEM_CLOCK_96M);                   // 时钟配置及系统初始化<务必保留>
+   10   1          debug_init();                                   // 调试串口信息初始化
+   11   1          Hardware_Init();
+   12   1      
+   13   1          while(1)
+   14   1          {
+   15   2              Servo_Process();
+   16   2              Key_Process();
+   17   2              if (FPS_Flag)
+   18   2              {
+   19   3                  tft180_show_uint16(65,87,FPS);
+   20   3            FPS = 0;
+   21   3                  FPS_Flag = 0;
+   22   3              }
+   23   2      
+   24   2              if (mt9v03x_finish_flag)
+   25   2              {
+   26   3                  Image_Process();
+   27   3                  mt9v03x_finish_flag = 0;
+   28   3                  FPS++;
+   29   3              }
+   30   2          }
+   31   1      }
+   32          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       142     ------
+  ecode size           =       150     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

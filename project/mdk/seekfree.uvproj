@@ -859,6 +859,41 @@
               <FileType>5</FileType>
               <FilePath>..\code\HardwareConfig.h</FilePath>
             </File>
+            <File>
+              <FileName>Servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\code\Servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\Servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\code\Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\Key.h</FilePath>
+            </File>
+            <File>
+              <FileName>本文件夹作用.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\本文件夹作用.txt</FilePath>
+            </File>
+            <File>
+              <FileName>PID.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\code\PID.c</FilePath>
+            </File>
+            <File>
+              <FileName>PID.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\code\PID.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

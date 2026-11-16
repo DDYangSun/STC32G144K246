@@ -1,6 +1,8 @@
 #include "zf_common_headfile.h"
 #include "HardwareConfig.h"
 #include "Image.h"
+#include "Servo.h"
+#include "Key.h"
 
 void main(void)
 {
@@ -10,6 +12,8 @@ void main(void)
 
     while(1)
     {
+        Servo_Process();
+        Key_Process();
         if (FPS_Flag)
         {
             tft180_show_uint16(65,87,FPS);

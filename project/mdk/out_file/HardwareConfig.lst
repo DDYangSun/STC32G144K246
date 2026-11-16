@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  HardwareConfig                                                     14/11/26  20:46:08  PAGE 1   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  14:45:21  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
@@ -13,51 +13,66 @@ stmt  level    source
     1          #include "zf_common_headfile.h"
     2          #include "HardwareConfig.h"
     3          #include "Image.h"
-    4          
-    5          uint16 FPS = 0;
-    6          uint8 FPS_Flag = 0;
+    4          #include "Servo.h"
+    5          #include "Key.h"
+    6          #include "PID.h"
     7          
-    8          void Hardware_Debug_Init()
-    9          {
-   10   1          tft180_show_string(0,70,"Threshold:");
-   11   1          tft180_show_string(0,87,"FPS:");
-   12   1      }
-   13          
-   14          void Hardware_Init(void)
-   15          {
-   16   1          Image_Init();                           //图像显示初始化
-   17   1          tft180_init();                          //tft180初始化
-   18   1          mt9v03x_init();                         //摄像头初始化：返回值为0则成功、非0则失败（这里不处理）
-   19   1          Hardware_Debug_Init();                  //硬件调试初始化
-   20   1      
-   21   1          //开启定时器0
-   22   1          pit_ms_init(TIM0_PIT, 1, pit_handler);
-   23   1      }
-   24          
-   25          //定时器0的中断
-   26          void pit_handler()
-   27          {
-   28   1          static uint16 TIM0_Count = 0;
-   29   1      
-   30   1          //计算帧数
-   31   1          if (++TIM0_Count >= 1000)
-   32   1          {
-   33   2              FPS_Flag = 1;
-   34   2          TIM0_Count = 0;
-   35   2          }
+    8          uint16 FPS = 0;
+    9          uint8 FPS_Flag = 0;
+   10          
+   11          void Hardware_Debug_Init()
+   12          {
+   13   1          tft180_show_string(0,70,"Threshold:");
+   14   1          tft180_show_string(0,87,"FPS:");
+   15   1      }
+   16          
+   17          void Hardware_Init(void)
+   18          {
+   19   1          Key_Init();                             //按键初始化
+   20   1          Image_Init();                           //图像显示初始化
+   21   1          tft180_init();                          //tft180初始化
+   22   1          mt9v03x_init();                         //摄像头初始化：返回值为0则成功、非0则失败（这里不处理）
+   23   1          Servo_Init();                           //舵机初始化
+   24   1          Hardware_Debug_Init();                  //硬件调试初始化
+   25   1      
+   26   1          //开启定时器0
+   27   1          pit_ms_init(TIM0_PIT, 1, pit_handler);
+   28   1      }
+   29          
+   30          //定时器0的中断
+   31          void pit_handler()
+   32          {
+   33   1          static uint16 TIM0_Count = 0;
+   34   1          static uint16 Servo_Count = 0;
+   35   1          static uint16 Angle = 90,Servo_Flag = 1;
    36   1      
-   37   1      }
-   38          
+   37   1          //缓速系统
+   38   1          if (++Key_Slow >= 10)       Key_Slow = 0;
+   39   1      
+   40   1          //计算帧数
+   41   1          if (++TIM0_Count >= 1000)
+   42   1          {
+   43   2              tft180_show_uint16(0,134,Angle_Set);
+   44   2              tft180_show_float(40,134,Angle_PID.Kp,2,1);
+   45   2              FPS_Flag = 1;
+   46   2          TIM0_Count = 0;
+   47   2          }
+   48   1      
+   49   1      
+   50   1      }
+   51          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       140     ------
+  ecode size           =       218     ------
+C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  14:45:21  PAGE 2   
+
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         5     ------
+  xdata size           =        11     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -67,9 +82,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-C251 COMPILER V5.60.0,  HardwareConfig                                                     14/11/26  20:46:08  PAGE 2   
-
-  hconst size          =        36     ------
+  hconst size          =        57     ------
 End of Module Information.
 
 

@@ -1,0 +1,133 @@
+#include "zf_common_headfile.h"
+#include "PID.h"
+#include "Servo.h"
+#include "Image.h"
+
+/**
+  * 函    数：PID初始化
+  * 参    数：p 指定结构体的地址
+  * 返 回 值：无
+  */
+void PID_Init(PID_t *p)
+{
+	/*把PID表示状态的参数清零，避免之前遗留的参数对本次启动造成影响*/
+	p->Target = 0;
+	p->Actual = 0;
+	p->Out = 0;
+	p->Error0 = 0;
+	p->Error1 = 0;
+	p->ErrorInt = 0;
+}
+
+/**
+  * 函    数：PID计算及结构体变量值更新
+  * 参    数：p 指定结构体的地址
+  * 返 回 值：无
+  */
+void PID_Update(PID_t *p)
+{
+	/*获取本次误差和上次误差*/
+	p->Error1 = p->Error0;					//获取上次误差
+	p->Error0 = p->Target - p->Actual;		//获取本次误差，目标值减实际值，即为误差值
+	
+	/*外环误差积分（累加）*/
+	/*如果Ki不为0，才进行误差积分，这样做的目的是便于调试*/
+	/*因为在调试时，我们可能先把Ki设置为0，这时积分项无作用，误差消除不了，误差积分会积累到很大的值*/
+	/*后续一旦Ki不为0，那么因为误差积分已经积累到很大的值了，这就导致积分项疯狂输出，不利于调试*/
+	if (p->Ki != 0)				//如果Ki不为0
+	{
+		p->ErrorInt += p->Error0;	//进行误差积分
+	}
+	else							//否则
+	{
+		p->ErrorInt = 0;			//误差积分直接归0
+	}
+	
+	/*PID计算*/
+	/*使用位置式PID公式，计算得到输出值*/
+	p->Out = p->Kp * p->Error0
+		   + p->Ki * p->ErrorInt
+		   + p->Kd * (p->Error0 - p->Error1);
+	
+	/*输出限幅*/
+	if (p->Out > p->OutMax) {p->Out = p->OutMax;}	//限制输出值最大为结构体指定的OutMax
+	if (p->Out < p->OutMin) {p->Out = p->OutMin;}	//限制输出值最小为结构体指定的OutMin
+}
+
+#define Close_Ratio             0.7
+
+
+PID_t Angle_PID = 
+{
+	GrayImage_Wide / 2,		//目标值，由用户设定
+	0,						//实际值，从传感器读取
+	0,						//输出值，作用于执行器
+	
+	0.1,						//比例项权重
+	0,						//积分项权重
+	0,						//微分项权重
+	
+	0,						//本次误差
+	0,						//上次误差
+	0,						//误差积分
+	
+	13,						//输出限幅的最大值
+	-13,					//输出限幅的最小值
+};
+
+#define Middle_PointNum			5
+
+//找中线平均X
+uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2]) 
+{
+	uint8 i = 0,j = 0;									
+	int16 Middle_PartPoint[Middle_PointNum];			//存放增大的几个点X的数组
+	int16 StartY = GrayImage_Height - 1,StopY = 0;		//Y值减小起始点Y，结束点Y
+	int16 PointGap;										//两点间隔
+	uint8 AverageX;										//中线平均X
+
+	StartY = MiddleLinePoint[0][1];
+
+	//找到减小结束点Y
+	for (i = 0;i < Middle_PointNum - 1;i++)
+	{
+		if (MiddleLinePoint[i][1] >= MiddleLinePoint[i + 1][1])
+		{
+			StopY = MiddleLinePoint[i][1];
+			break;
+		}
+	}
+
+	PointGap = (StartY - StopY) / Middle_PointNum;		//求两点间隔
+
+	//将几个点存入数组
+	for (i = 0;i < Middle_PointNum;i++)
+	{
+		for (j = 0;j < PointNum;j++)
+		{
+			if (MiddleLinePoint[j][1] == StartY - i * PointGap)
+				break;
+		}
+
+		Middle_PartPoint[i] = MiddleLinePoint[j][0];
+	}
+
+	AverageX = (Middle_PartPoint[0] * 35 + Middle_PartPoint[1] * 30 + Middle_PartPoint[2] * 20 + Middle_PartPoint[3] * 10 + Middle_PartPoint[4] * 5) / 100;
+
+	return AverageX;
+}
+
+//PID
+void Angle_PID_Process()
+{
+	uint16 AverageX = 0;
+
+	AverageX = Middle_AverageX(MiddleLinePoint);
+	Angle_PID.Actual = AverageX;
+	Angle_PID.Error0 = GrayImage_Wide / 2 - AverageX;
+	PID_Update(&Angle_PID);
+	Angle_Set += Angle_PID.Out;
+
+}
+
+

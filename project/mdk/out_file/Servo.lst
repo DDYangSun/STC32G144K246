@@ -1,0 +1,71 @@
+C251 COMPILER V5.60.0,  Servo                                                              16/11/26  14:45:22  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE Servo
+OBJECT MODULE PLACED IN .\out_file\Servo.obj
+COMPILER INVOKED BY: D:\KEIL\C251\BIN\C251.EXE ..\code\Servo.c LARGE ROM(HUGE) WARNINGLEVEL(3) OPTIMIZE(0,SIZE) BROWSE I
+                    -NCDIR(..\..\libraries\zf_common;..\..\libraries\zf_components;..\..\libraries\zf_device;..\..\libraries\zf_driver;..\use
+                    -r;..\code;..\..\libraries\zf_components\stc32g_usb_lib;..\..\libraries\zf_components\seekfree_assistant) DEBUG PRINT(.\o
+                    -ut_file\Servo.lst) TABS(2) OBJECT(.\out_file\Servo.obj) 
+
+stmt  level    source
+
+    1          #include "zf_common_headfile.h"
+    2          #include "Servo.h"
+    3          #include "PID.h"
+    4          
+    5          uint8 Angle_Set = 95;
+    6          
+    7          void Servo_Init()                               //舵机初始化
+    8          {
+    9   1          pwm_init(SERVO_PWM,SERVO_FREQ,0);
+   10   1      }
+   11          
+   12          void Servo_Ctrl_Angle(uint8 Servo_Angle)                               //舵机控制
+   13          {
+   14   1          pwm_set_duty(SERVO_PWM,SERVO_DUTY(Servo_Angle));
+   15   1      }
+   16          
+   17          void Servo_Ctrl_Duty(uint16 Servo_Duty)                               //舵机控制
+   18          {
+   19   1          pwm_set_duty(SERVO_PWM,Servo_Duty);
+   20   1      }
+   21          
+   22          void Servo_AngleRestriction()
+   23          {
+   24   1          if (Angle_Set >= 108)
+   25   1              Angle_Set = 108;
+   26   1          if (Angle_Set <= 82)
+   27   1              Angle_Set = 82;
+   28   1      }
+   29          
+   30          void Servo_Process()
+   31          {
+   32   1          Angle_PID_Process();
+   33   1          Servo_AngleRestriction();
+   34   1          Servo_Ctrl_Angle(Angle_Set);
+   35   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =       167     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =         4     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =         6     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
