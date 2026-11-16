@@ -8,6 +8,8 @@
 uint16 FPS = 0;
 uint8 FPS_Flag = 0;
 
+uint8 TIM0_ShowTFT = 0;                     //TFT显示标志位
+
 void Hardware_Debug_Init()
 {
     tft180_show_string(0,70,"Threshold:");
@@ -24,29 +26,44 @@ void Hardware_Init(void)
     Hardware_Debug_Init();                  //硬件调试初始化
 
     //开启定时器0
-    pit_ms_init(TIM0_PIT, 1, pit_handler);
+    pit_ms_init(TIM0_PIT, 1, pit_TIM0);
+}
+
+void TFT_ShowFPS()
+{
+    if (FPS_Flag)
+    {
+        tft180_show_uint16(65,87,FPS);
+		FPS = 0;
+        FPS_Flag = 0;
+    }
+}
+
+void TFT_ShowData(uint8 TIM0_ShowTFT)
+{
+    if (TIM0_ShowTFT)
+    {
+        tft180_show_uint16(0,134,Angle_Set);
+        tft180_show_float(40,134,Angle_PID.Kp,2,3);
+        tft180_show_float(0,108,Angle_PID.Error0,3,3);
+        TIM0_ShowTFT = 0;
+    }
 }
 
 //定时器0的中断
-void pit_handler()
+void pit_TIM0()
 {
     static uint16 TIM0_Count = 0;
-    static uint16 Servo_Count = 0;
-    static uint16 Angle = 90,Servo_Flag = 1;
-
+    
     //缓速系统
     if (++Key_Slow >= 10)       Key_Slow = 0;
 
     //计算帧数
     if (++TIM0_Count >= 1000)
     {
-        tft180_show_uint16(0,134,Angle_Set);
-        tft180_show_float(40,134,Angle_PID.Kp,2,3);
-        tft180_show_float(0,108,Angle_PID.Error0,3,3);
+        TIM0_ShowTFT = 1;
         FPS_Flag = 1;
 		TIM0_Count = 0;
     }
-
-
 }
 

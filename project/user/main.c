@@ -12,18 +12,15 @@ void main(void)
 
     while(1)
     {
-        Servo_Process();
-        Key_Process();
-        if (FPS_Flag)
-        {
-            tft180_show_uint16(65,87,FPS);
-			FPS = 0;
-            FPS_Flag = 0;
-        }
+        Key_Process();                              //按键控制
+        Servo_Process();                            //角度环PID舵机控制
+
+        TFT_ShowFPS();                              //TFT显示帧率
+        TFT_ShowData(TIM0_ShowTFT);                 //TFT显示其他数据
 
         if (mt9v03x_finish_flag)
         {
-            Image_Process();
+            Image_Process();                        //图像处理
             mt9v03x_finish_flag = 0;
             FPS++;
         }
