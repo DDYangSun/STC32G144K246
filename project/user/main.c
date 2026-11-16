@@ -16,7 +16,7 @@ void main(void)
         Servo_Process();                            //角度环PID舵机控制
 
         TFT_ShowFPS();                              //TFT显示帧率
-        TFT_ShowData(TIM0_ShowTFT);                 //TFT显示其他数据
+        TFT_ShowData();                 //TFT显示其他数据
 
         if (mt9v03x_finish_flag)
         {

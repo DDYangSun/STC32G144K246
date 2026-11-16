@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  PID                                                                16/11/26  19:38:21  PAGE 1   
+C251 COMPILER V5.60.0,  PID                                                                16/11/26  22:42:38  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE PID
@@ -66,7 +66,7 @@ stmt  level    source
    54   1        if (p->Out > p->OutMax) {p->Out = p->OutMax;} //限制输出值最大为结构体指定的OutMax
    55   1        if (p->Out < p->OutMin) {p->Out = p->OutMin;} //限制输出值最小为结构体指定的OutMin
    56   1      }
-C251 COMPILER V5.60.0,  PID                                                                16/11/26  19:38:21  PAGE 2   
+C251 COMPILER V5.60.0,  PID                                                                16/11/26  22:42:38  PAGE 2   
 
    57          
    58          PID_t Angle_PID = 
@@ -90,72 +90,35 @@ stmt  level    source
    76          #define Middle_PointNum     5
    77          
    78          //找中线平均X
-   79          uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2]) 
+   79          uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2])
    80          {
-   81   1        uint8 i = 0,j = 0;                  
-   82   1        int16 Middle_PartPoint[Middle_PointNum];      //存放增大的几个点X的数组
-   83   1        int16 StartY = GrayImage_Height - 1,StopY = 0;    //Y值减小起始点Y，结束点Y
-   84   1        int16 PointGap;                   //两点间隔
-   85   1        uint8 AverageX;                   //中线平均X
-   86   1      
-   87   1        StartY = MiddleLinePoint[0][1];
+   81   1          return (uint16)MiddleLinePoint[0][0];
+   82   1      }
+   83          
+   84          //PID
+   85          void Angle_PID_Process()
+   86          {
+   87   1        uint16 AverageX = 0;
    88   1      
-   89   1        //找到减小结束点Y
-   90   1        for (i = 0;i < Middle_PointNum - 1;i++)
-   91   1        {
-   92   2          if (MiddleLinePoint[i][1] >= MiddleLinePoint[i + 1][1])
-   93   2          {
-   94   3            StopY = MiddleLinePoint[i][1];
-   95   3            break;
-   96   3          }
-   97   2        }
-   98   1      
-   99   1        PointGap = (StartY - StopY) / Middle_PointNum;    //求两点间隔
-  100   1      
-  101   1        //将几个点存入数组
-  102   1        for (i = 0;i < Middle_PointNum;i++)
-  103   1        {
-  104   2          for (j = 0;j < PointNum;j++)
-  105   2          {
-  106   3            if (MiddleLinePoint[j][1] == StartY - i * PointGap)
-  107   3              break;
-  108   3          }
-  109   2      
-  110   2          Middle_PartPoint[i] = MiddleLinePoint[j][0];
-  111   2        }
-  112   1      
-  113   1        AverageX = (Middle_PartPoint[0] * 35 + Middle_PartPoint[1] * 30 + Middle_PartPoint[2] * 20 + Middle_Part
-             -Point[3] * 10 + Middle_PartPoint[4] * 5) / 100;
-  114   1      
-  115   1        return AverageX;
-  116   1      }
-  117          
-  118          //PID
-  119          void Angle_PID_Process()
-  120          {
-  121   1        uint16 AverageX = 0;
-C251 COMPILER V5.60.0,  PID                                                                16/11/26  19:38:21  PAGE 3   
-
-  122   1      
-  123   1        AverageX = Middle_AverageX(MiddleLinePoint);
-  124   1        Angle_PID.Actual = AverageX;
-  125   1        Angle_PID.Error0 = GrayImage_Wide / 2 - AverageX;
-  126   1        PID_Update(&Angle_PID);
-  127   1        Angle_Set = SERVO_MiddlePos + Angle_PID.Out;
-  128   1      
-  129   1      }
-  130          
-  131          
+   89   1        AverageX = Middle_AverageX(MiddleLinePoint);
+   90   1        Angle_PID.Actual = AverageX;
+   91   1        Angle_PID.Error0 = GrayImage_Wide / 2 - AverageX;
+   92   1        PID_Update(&Angle_PID);
+   93   1        Angle_Set = SERVO_MiddlePos + Angle_PID.Out;
+   94   1      
+   95   1      }
+   96          
+   97          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1333     ------
+  ecode size           =       889     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =        77     ------
+  xdata size           =        58     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

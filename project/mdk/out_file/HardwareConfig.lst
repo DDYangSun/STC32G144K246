@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  19:48:50  PAGE 1   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  22:42:38  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
@@ -51,7 +51,7 @@ stmt  level    source
    39   2          }
    40   1      }
    41          
-   42          void TFT_ShowData(uint8 TIM0_ShowTFT)
+   42          void TFT_ShowData(void)
    43          {
    44   1          if (TIM0_ShowTFT)
    45   1          {
@@ -66,7 +66,7 @@ stmt  level    source
    54          void pit_TIM0()
    55          {
    56   1          static uint16 TIM0_Count = 0;
-C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  19:48:50  PAGE 2   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  22:42:38  PAGE 2   
 
    57   1          
    58   1          //»ºËÙÏµÍ³
@@ -86,11 +86,11 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       312     ------
+  ecode size           =       308     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         7     ------
+  xdata size           =         6     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------

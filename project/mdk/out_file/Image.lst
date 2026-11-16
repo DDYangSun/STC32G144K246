@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 1   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Image
@@ -66,7 +66,7 @@ stmt  level    source
    50          //-------------------------------------------------------------------------------------------------------
              -------------
    51          void GrayImage_Compress_94_60(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 2   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 2   
 
              - 2][MT9V03X_W / 2])
    52          {
@@ -134,7 +134,7 @@ stmt  level    source
   114                      img[i][j] = FilterTemp[i][j];
   115                  }
   116              }
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 3   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 3   
 
   117          }
   118          */
@@ -202,7 +202,7 @@ stmt  level    source
   176   3                  else
   177   3                  {
   178   4                      break;
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 4   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 4   
 
   179   4                  }
   180   3              }
@@ -218,373 +218,298 @@ stmt  level    source
   190          
   191          //Ñ°ÕÒ×óÓÒ±ß½çµã
   192          #define Gap_MIN                     10
-  193          #define Gap_MAX                     80
-  194          #define Middle_Standard             47
-  195          void FindBoundaryPoint(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide],uint8 StartPos)
-  196          {
-  197   1          uint8 i = 0,j = 0;
-  198   1      
-  199   1          //Ïò×óÕÒ±ß½ç
-  200   1          for (i = StartPos;i > 0;i--)
-  201   1          {
-  202   2              if (mt9v03x_image[GrayImage_Height - 1][i] == 255 && mt9v03x_image[GrayImage_Height - 1][i - 1] =
+  193          #define Middle_Standard             47
+  194          void FindBoundaryPoint(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide],uint8 StartPos)
+  195          {
+  196   1          uint8 i = 0,j = 0;
+  197   1      
+  198   1          LeftFlag = 0;
+  199   1          RightFlag = 0;
+  200   1      
+  201   1          //Ïò×óÕÒ±ß½ç
+  202   1          for (i = StartPos;i > 0;i--)
+  203   1          {
+  204   2              if (mt9v03x_image[GrayImage_Height - 1][i] == 255 && mt9v03x_image[GrayImage_Height - 1][i - 1] =
              -= 0)
-  203   2              {
-  204   3                  LeftFlag = 1;
-  205   3                  break;
-  206   3              }
-  207   2          }
-  208   1      
-  209   1          if (LeftFlag == 0)
-  210   1          {
-  211   2              for (j = 0;j < GrayImage_Height - 1;j++)
-  212   2              {
-  213   3                  if (mt9v03x_image[GrayImage_Height - 1 - j][i] == 255 && mt9v03x_image[GrayImage_Height - 1 -
+  205   2              {
+  206   3                  LeftFlag = 1;
+  207   3                  break;
+  208   3              }
+  209   2          }
+  210   1      
+  211   1          if (LeftFlag == 0)
+  212   1          {
+  213   2              for (j = 0;j < GrayImage_Height - 1;j++)
+  214   2              {
+  215   3                  if (mt9v03x_image[GrayImage_Height - 1 - j][i] == 255 && mt9v03x_image[GrayImage_Height - 1 -
              - j - 1][i] == 0)
-  214   3                  {
-  215   4                      break;
-  216   4                  }
-  217   3              }
-  218   2          }
-  219   1          LeftLine_StartX = i;
-  220   1          LeftLine_StartY = GrayImage_Height - 1 - j;
-  221   1      
-  222   1          //ÏòÓÒÕÒ±ß½çµã
-  223   1          j = 0;
-  224   1          for (i = StartPos;i < GrayImage_Wide - 1;i++)
-  225   1          {
-  226   2              if (mt9v03x_image[GrayImage_Height - 1][i] == 255 && mt9v03x_image[GrayImage_Height - 1][i + 1] =
+  216   3                  {
+  217   4                      break;
+  218   4                  }
+  219   3              }
+  220   2          }
+  221   1          LeftLine_StartX = i;
+  222   1          LeftLine_StartY = GrayImage_Height - 1 - j;
+  223   1      
+  224   1          //ÏòÓÒÕÒ±ß½çµã
+  225   1          j = 0;
+  226   1          for (i = StartPos;i < GrayImage_Wide - 1;i++)
+  227   1          {
+  228   2              if (mt9v03x_image[GrayImage_Height - 1][i] == 255 && mt9v03x_image[GrayImage_Height - 1][i + 1] =
              -= 0)
-  227   2              {
-  228   3                  RightFlag = 1;
-  229   3                  break;
-  230   3              }
-  231   2          }
-  232   1          if (RightFlag == 0)
-  233   1          {
-  234   2              for (j = 0;j < GrayImage_Height - 1;j++)
-  235   2              {
-  236   3                  if (mt9v03x_image[GrayImage_Height - 1 - j][i] == 255 && mt9v03x_image[GrayImage_Height - 1 -
+  229   2              {
+  230   3                  RightFlag = 1;
+  231   3                  break;
+  232   3              }
+  233   2          }
+  234   1          if (RightFlag == 0)
+  235   1          {
+  236   2              for (j = 0;j < GrayImage_Height - 1;j++)
+  237   2              {
+  238   3                  if (mt9v03x_image[GrayImage_Height - 1 - j][i] == 255 && mt9v03x_image[GrayImage_Height - 1 -
              - j - 1][i] == 0)
-  237   3                  {
-  238   4                      break;
-  239   4                  }
-  240   3              }
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 5   
+  239   3                  {
+  240   4                      break;
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 5   
 
-  241   2          }
-  242   1          RightLine_StartX = i;
-  243   1          RightLine_StartY = GrayImage_Height - 1 - j;
-  244   1      
-  245   1          if (RightLine_StartX - LeftLine_StartX < Gap_MIN)
-  246   1          {
-  247   2              LeftLine_StartX = Middle_Standard - 10;
-  248   2              RightLine_StartX = Middle_Standard + 10;
-  249   2          }
-  250   1      }
-  251          
-  252          //ÅÀÏß
-  253          int16 LeftLinePoint[PointNum][2],RightLinePoint[PointNum][2];   //×óÓÒ±ßÏß×ø±êÖµ
-  254          int16 MiddleLinePoint[PointNum][2];
-  255          void FindLeftBoundary_ClimbLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide])
-  256          {
-  257   1          int16 x0 = 0,y0 = 0;
-  258   1          int16 x1 = 0,y1 = 0;    
-  259   1          uint16 i = 0,j = 0;
-  260   1          uint16 Find_Flag = 0;
-  261   1      
-  262   1          LeftLinePoint[0][0] = LeftLine_StartX;
-  263   1          LeftLinePoint[0][1] = LeftLine_StartY;
-  264   1      
-  265   1          for (j = 0; j < PointNum - 1; j++)       //ÕâÀïÐ¡ÓÚµÈÓÚµÄÊÇ±ßÏßÊý×é³¤¶È       j = 0Ê±´æµÄÊÇ1µÄÖµ£¬Ò²Ò
-             -ª¿¼ÂÇÊý×é³¤¶È£¬ÄÇÃ´×î´óÖµÓ¦¸ÃÊÇGrayImage_Height - 2
-  266   1          {
-  267   2              for (i = 0;i < 8;i++)               //Ë³Ê±ÕëÐý×ª
-  268   2              {
-  269   3                  x0 = (int16)(LeftLinePoint[j][0]) + (int16)Dir[(2 + i) % 8][0];
-  270   3                  y0 = (int16)(LeftLinePoint[j][1]) + (int16)Dir[(2 + i) % 8][1];            
-  271   3                  x1 = (int16)(LeftLinePoint[j][0]) + (int16)Dir[(2 + i + 1) % 8][0];
-  272   3                  y1 = (int16)(LeftLinePoint[j][1]) + (int16)Dir[(2 + i + 1) % 8][1];
-  273   3      
-  274   3                  if (x0 < 0 || y0 < 0 || x0 > GrayImage_Wide - 1 || y0 > GrayImage_Height - 1)
-  275   3                      continue;
-  276   3      
-  277   3                  if (x1 < 0 || y1 < 0 || x1 > GrayImage_Wide - 1 || y1 > GrayImage_Height - 1)
-  278   3                      continue;
-  279   3                  
-  280   3                  if (mt9v03x_image[y1][x1] == 255 && mt9v03x_image[y0][x0] == 0)
-  281   3                  {
-  282   4                      Find_Flag = 1;
-  283   4                      break;
-  284   4                  }
-  285   3                  else
-  286   3                  {
-  287   4                      Find_Flag = 0;
+  241   4                  }
+  242   3              }
+  243   2          }
+  244   1          RightLine_StartX = i;
+  245   1          RightLine_StartY = GrayImage_Height - 1 - j;
+  246   1      
+  247   1          if (RightLine_StartX - LeftLine_StartX < Gap_MIN)
+  248   1          {
+  249   2              LeftLine_StartX = Middle_Standard - 10;
+  250   2              RightLine_StartX = Middle_Standard + 10;
+  251   2          }
+  252   1      }
+  253          
+  254          //ÅÀÏß
+  255          int16 LeftLinePoint[PointNum][2] = {{0,0}},RightLinePoint[PointNum][2] = {{0,0}};   //×óÓÒ±ßÏß×ø±êÖµ
+  256          int16 MiddleLinePoint[PointNum][2] = {{0,0}};
+  257          void FindBoundary_ClimbLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide],int16 LinePoint[PointNu
+             -m][2],uint8 LineStartX,uint8 LineStartY)
+  258          {
+  259   1          int16 x0 = 0,y0 = 0;
+  260   1          int16 x1 = 0,y1 = 0;
+  261   1          int16 x = 0;
+  262   1          uint16 i = 0,j = 0,step = 0,oldj = 0;
+  263   1          uint8 found = 0;
+  264   1          uint8 Dir_Base = 0,Dir_Base1 = 0;
+  265   1      
+  266   1          for (i = 0;i < PointNum;i++)
+  267   1          {
+  268   2              LinePoint[i][0] = 0;
+  269   2              LinePoint[i][1] = 0;
+  270   2          }
+  271   1      
+  272   1          x = LineStartX;
+  273   1          j = LineStartY;
+  274   1          LinePoint[j][0] = x;
+  275   1          LinePoint[j][1] = j;
+  276   1      
+  277   1          for (step = 0;step < PointNum * 4;step++)
+  278   1          {
+  279   2              if (j == 0) break;
+  280   2      
+  281   2              found = 0;
+  282   2              for (i = 0;i < 8;i++)
+  283   2              {
+  284   3                  if (LineStartX == LeftLine_StartX)
+  285   3                  {
+  286   4                      Dir_Base = 2 + i;
+  287   4                      Dir_Base1 = 2 + i + 1;
   288   4                  }
-  289   3              }
-  290   2              
-  291   2              if (Find_Flag == 0)
-  292   2              {
-  293   3                  LeftLinePoint[j + 1][0] = LeftLinePoint[j][0];
-  294   3                  LeftLinePoint[j + 1][1] = LeftLinePoint[j][1];
-  295   3                  continue;
-  296   3              }
-  297   2              LeftLinePoint[j + 1][0] = (int16)x1;
-  298   2              LeftLinePoint[j + 1][1] = (int16)y1;
-  299   2          }
-  300   1      }
-  301          
-  302          void FindRightBoundary_ClimbLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide])
-  303          {
-  304   1          int16 x0 = 0,y0 = 0;
-  305   1          int16 x1 = 0,y1 = 0;    
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 6   
+  289   3                  else
+  290   3                  {
+  291   4                      Dir_Base = 2 + 8 - i;
+  292   4                      Dir_Base1 = 2 + 8 - i - 1;
+  293   4                  }
+  294   3      
+  295   3                  x0 = LinePoint[j][0] + (int16)Dir[Dir_Base % 8][0];
+  296   3                  y0 = LinePoint[j][1] + (int16)Dir[Dir_Base % 8][1];
+  297   3                  x1 = LinePoint[j][0] + (int16)Dir[Dir_Base1 % 8][0];
+  298   3                  y1 = LinePoint[j][1] + (int16)Dir[Dir_Base1 % 8][1];
+  299   3      
+  300   3                  if (x0 < 0 || y0 < 0 || x0 > GrayImage_Wide - 1 || y0 > GrayImage_Height - 1) continue;
+  301   3                  if (x1 < 0 || y1 < 0 || x1 > GrayImage_Wide - 1 || y1 > GrayImage_Height - 1) continue;
+  302   3                  if (y1 > LinePoint[j][1]) continue;                 // Ö»ÔÊÐíÏòÉÏ/Ë®Æ½
+  303   3                  if (y1 == LinePoint[j][1] && x1 == LinePoint[j][0]) continue;
+  304   3      
+  305   3                  if (mt9v03x_image[y1][x1] == 255 && mt9v03x_image[y0][x0] == 0)
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 6   
 
-  306   1          uint16 i = 0,j = 0;
-  307   1          uint16 Find_Flag = 0;
-  308   1      
-  309   1          RightLinePoint[0][0] = RightLine_StartX;
-  310   1          RightLinePoint[0][1] = RightLine_StartY;
-  311   1      
-  312   1          for (j = 0; j < PointNum - 1; j++)       //ÕâÀïÐ¡ÓÚµÈÓÚµÄÊÇ±ßÏßÊý×é³¤¶È       j = 0Ê±´æµÄÊÇ1µÄÖµ£¬Ò²Ò
-             -ª¿¼ÂÇÊý×é³¤¶È£¬ÄÇÃ´×î´óÖµÓ¦¸ÃÊÇGrayImage_Height - 2
-  313   1          {
-  314   2              for (i = 0;i < 8;i++)               //ÄæÊ±ÕëÐý×ª
-  315   2              {
-  316   3                  x0 = (int16)(RightLinePoint[j][0]) + (int16)Dir[(6 + 8 - i) % 8][0];
-  317   3                  y0 = (int16)(RightLinePoint[j][1]) + (int16)Dir[(6 + 8 - i) % 8][1];            
-  318   3                  x1 = (int16)(RightLinePoint[j][0]) + (int16)Dir[(6 + 8 - i - 1) % 8][0];
-  319   3                  y1 = (int16)(RightLinePoint[j][1]) + (int16)Dir[(6 + 8 - i - 1) % 8][1];
-  320   3      
-  321   3                  if (x0 < 0 || y0 < 0 || x0 > GrayImage_Wide - 1 || y0 > GrayImage_Height - 1)
-  322   3                      continue;
-  323   3                  if (x1 < 0 || y1 < 0 || x1 > GrayImage_Wide - 1 || y1 > GrayImage_Height - 1)
-  324   3                      continue;
-  325   3                  
-  326   3                  if (mt9v03x_image[y1][x1] == 255 && mt9v03x_image[y0][x0] == 0)
-  327   3                  {
-  328   4                      Find_Flag = 1;
-  329   4                      break;
-  330   4                  }
-  331   3                  else
-  332   3                  {
-  333   4                      Find_Flag = 0;
-  334   4                  }
-  335   3              }
-  336   2              
-  337   2              if (Find_Flag == 0)
-  338   2              {
-  339   3                  RightLinePoint[j + 1][0] = RightLinePoint[j][0];
-  340   3                  RightLinePoint[j + 1][1] = RightLinePoint[j][1];
-  341   3                  continue;
-  342   3              }
-  343   2              RightLinePoint[j + 1][0] = (int16)x1;
-  344   2              RightLinePoint[j + 1][1] = (int16)y1;
+  306   3                  {
+  307   4                      found = 1;
+  308   4                      break;
+  309   4                  }
+  310   3              }
+  311   2      
+  312   2              if (found == 0)
+  313   2              {
+  314   3                  // °ËÁÚÓòÕÒ²»µ½£ºÑØµ±Ç°ÁÐÍùÉÏ£¬°×É«¾Í¼ÇÂ¼µ±Ç°x£»Óöµ½ºÚµãºó»Øµ½µ±Ç°°×µãÖØÐÂÕÒ°ËÁÚÓò
+  315   3                  oldj = j;
+  316   3                  while ((j > 0) && (mt9v03x_image[j - 1][LinePoint[j][0]] == 255))
+  317   3                  {
+  318   4                      j--;
+  319   4                      LinePoint[j][0] = LinePoint[j + 1][0];
+  320   4                      LinePoint[j][1] = j;
+  321   4                  }
+  322   3                  if ((j == 0) || (j == oldj)) break;
+  323   3                  continue;
+  324   3              }
+  325   2      
+  326   2              if (y1 == LinePoint[j][1])
+  327   2              {
+  328   3                  // Í¬Ò»ÐÐ£ººóÃæµÄµã¸²¸Çµ±Ç°±ßÏßÊý×é
+  329   3                  LinePoint[j][0] = x1;
+  330   3                  LinePoint[j][1] = y1;
+  331   3      
+  332   3                  if (x1 == x)
+  333   3                  {
+  334   4                      break;                  // Ô­µØµã£¬·ÀÖ¹ËÀÑ­»·
+  335   4                  }
+  336   3                  x = x1;
+  337   3              }
+  338   2              else
+  339   2              {
+  340   3                  j = y1;
+  341   3                  LinePoint[j][0] = x1;
+  342   3                  LinePoint[j][1] = y1;
+  343   3                  x = x1;
+  344   3              }
   345   2          }
   346   1      }
   347          
   348          //ÕÒÖÐÏß
-  349          void FindMiddleLine(uint16 LeftLinePoint[PointNum][2],uint16 RightLinePoint[PointNum][2],uint16 MiddleLin
-             -ePoint[PointNum][2])
+  349          void FindMiddleLine(int16 LeftLinePoint[PointNum][2],int16 RightLinePoint[PointNum][2],int16 MiddleLinePo
+             -int[PointNum][2])
   350          {
-  351   1          uint8 i = 0;
-  352   1          uint8 LeftLine_TouchRight_Flag = 0,RightLine_TouchLeft_Flag = 0;
-  353   1          uint16 Dif_Value;                           //±ßÏß¼ÓµÄ¹Ì¶¨²îÖµ
-  354   1          int16 MiddleX,MiddleY;                     //ÖÐÏßµãX,Y×ø±ê
-  355   1      
-  356   1          for (i = 0;i < 80;i++)
-  357   1          {
-  358   2              if (LeftLinePoint[i][0] == GrayImage_Wide - 1)
-  359   2              {
-  360   3                  LeftLine_TouchRight_Flag = 1;
-  361   3                  break;                                      //Ö»ÒªÓÐÒ»¸öÅöµ½±ß½çÁË£¬ÁíÒ»¸öÒ»¶¨Ã»Åöµ½
-  362   3              } 
-  363   2      
-  364   2              if (RightLinePoint[i][0] == 0)
-  365   2              {
-  366   3                  RightLine_TouchLeft_Flag = 1;
-  367   3                  break;
-  368   3              }
-  369   2          }
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 7   
+  351   1          uint16 i = 0;
+  352   1      
+  353   1          // µÚÒ»¸öÕÒµ½µÄµã£º×óÓÒÆðµãÈ¡ x/y ÖÐÖµ
+  354   1          MiddleLinePoint[0][0] = (LeftLine_StartX + RightLine_StartX) / 2;
+  355   1          MiddleLinePoint[0][1] = (LeftLine_StartY + RightLine_StartY) / 2;
+  356   1      
+  357   1          for (i = 1;i < PointNum;i++)
+  358   1          {
+  359   2              MiddleLinePoint[i][0] = (LeftLinePoint[i][0] + RightLinePoint[i][0]) / 2;
+  360   2              MiddleLinePoint[i][1] = (LeftLinePoint[i][1] + RightLinePoint[i][1]) / 2;
+  361   2          }
+  362   1      }
+  363          
+  364          //°ËÁÚÓòËã·¨Ñ°ÕÒ±ßÏß
+  365          void FindBoundary_EightNeighborhood(uint8 mt9v03x_image_Eight[GrayImage_Height][GrayImage_Wide])
+  366          {
+  367   1          uint8 MaxWhiteLinePos = 0;
+  368   1      
+  369   1          //Ñ°ÕÒ×óÓÒ±ß½çµã
+  370   1          MaxWhiteLinePos = FindMaxWhiteLine(mt9v03x_image_Eight);
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 7   
 
-  370   1      
-  371   1          //ÔªËØ1
-  372   1          //×ó±ßÏßÅöµ½×îÓÒ²à²¢ÇÒÓÒ±ßÃ»ËÑµ½±ßÏß£¨¼ÓÉÏ×ó±ßÏß¾àÀëÓÒ±ßµÄ²îÖµµÄÈý·ÖÖ®¶þ£¬Èç¹û³¬¹ýÁËÏÔÊ¾ÇøÓò£¬ºóÃæµÄ¾
-             -Í²»ÏÔÊ¾ÁË£©
-  373   1          if (LeftLine_TouchRight_Flag == 1 && RightFlag == 0)
-  374   1          {
-  375   2              Dif_Value = ((GrayImage_Wide - 1 - LeftLinePoint[0][0]) << 1) / 3;              //¼ÆËãµÚÒ»¸ö×ó±ßÏ
-             -ßµÄµã¾àÀëÆÁÄ»ÓÐ±ßÑØ²îÖµµÄÈý·ÖÖ®¶þ
-  376   2              for (i = 0;i < 80;i++)
-  377   2              {
-  378   3                  MiddleX = LeftLinePoint[i][0] + Dif_Value;
-  379   3                  MiddleY = LeftLinePoint[i][1];
-  380   3                  if (MiddleX < GrayImage_Wide)
-  381   3                  {
-  382   4                      MiddleLinePoint[i][0] = MiddleX;
-  383   4                      MiddleLinePoint[i][1] = LeftLinePoint[i][1];
-  384   4                  }
-  385   3                  else
-  386   3                  {
-  387   4                      MiddleLinePoint[i][0] = MiddleLinePoint[i - 1][0];
-  388   4                      MiddleLinePoint[i][1] = MiddleLinePoint[i - 1][1];
-  389   4                  }
-  390   3              }
-  391   2          }
-  392   1          else if (RightLine_TouchLeft_Flag == 1 && LeftFlag == 0)        //ÓÒ±ßÏßÅöµ½×î×ó²à²¢ÇÒ×ó±ßÃ»ËÑµ½±ßÏß
-  393   1          {
-  394   2              Dif_Value = (LeftLinePoint[0][0]) << 1 / 3;              //¼ÆËãµÚÒ»¸ö×ó±ßÏßµÄµã¾àÀëÆÁÄ»ÓÐ±ßÑØ²îÖµ
-             -µÄÈý·ÖÖ®¶þ
-  395   2              for (i = 0;i < 80;i++)
-  396   2              {
-  397   3                  MiddleX = LeftLinePoint[i][0] - Dif_Value;
-  398   3                  MiddleY = LeftLinePoint[i][1];
-  399   3                  if (MiddleX >= 0)
-  400   3                  {
-  401   4                      MiddleLinePoint[i][0] = MiddleX;
-  402   4                      MiddleLinePoint[i][1] = LeftLinePoint[i][1];
-  403   4                  }
-  404   3                  else
-  405   3                  {
-  406   4                      MiddleLinePoint[i][0] = MiddleLinePoint[i - 1][0];
-  407   4                      MiddleLinePoint[i][1] = MiddleLinePoint[i - 1][1];
-  408   4                  }
-  409   3              }
-  410   2          }
-  411   1      
-  412   1          for (i = 0;i < 80;i++)
-  413   1          {
-  414   2              MiddleLinePoint[i][0] = (LeftLinePoint[i][0] + RightLinePoint[i][0]) / 2;
-  415   2              MiddleLinePoint[i][1] = (LeftLinePoint[i][1] + RightLinePoint[i][1]) / 2;
-  416   2          }
-  417   1      
-  418   1      }
-  419          
-  420          //°ËÁÚÓòËã·¨Ñ°ÕÒ±ßÏß
-  421          void FindBoundary_EightNeighborhood(uint8 mt9v03x_image_Eight[GrayImage_Height][GrayImage_Wide])
-  422          {
-  423   1          uint8 MaxWhiteLinePos = 0;
-  424   1      
-  425   1          //Ñ°ÕÒ×óÓÒ±ß½çµã
-  426   1          MaxWhiteLinePos = FindMaxWhiteLine(mt9v03x_image_Eight);
-  427   1          FindBoundaryPoint(mt9v03x_image_Eight,MaxWhiteLinePos);
-  428   1      
-  429   1          //ÅÀÏß
-  430   1          FindLeftBoundary_ClimbLine(mt9v03x_image_Eight);
-  431   1          FindRightBoundary_ClimbLine(mt9v03x_image_Eight);
-  432   1          FindMiddleLine(LeftLinePoint, RightLinePoint, MiddleLinePoint);
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 8   
-
-*** WARNING C91 IN LINE 432 OF ..\code\Image.c: '&': pointer to different objects
-*** WARNING C91 IN LINE 432 OF ..\code\Image.c: '&': pointer to different objects
-*** WARNING C91 IN LINE 432 OF ..\code\Image.c: '&': pointer to different objects
-  433   1      }
-  434          
-  435          
-  436          uint8 Temp;
-  437          void Image_Process(void)
-  438          {
-  439   1          uint8 ImageThreshold;
-  440   1      
-  441   1          //Ñ¹ËõÍ¼Ïñ(ºóÐø¿ÉÒÔÔÚºóÃæÐ´else if¸üÐÂÑ¹Ëõ·Ö±æÂÊ)
-  442   1          #if CompressImage == 2
+  371   1          FindBoundaryPoint(mt9v03x_image_Eight,MaxWhiteLinePos);
+  372   1      
+  373   1          //ÅÀÏß
+  374   1          FindBoundary_ClimbLine(mt9v03x_image_Eight,LeftLinePoint,LeftLine_StartX,LeftLine_StartY);
+  375   1          FindBoundary_ClimbLine(mt9v03x_image_Eight,RightLinePoint,RightLine_StartX,RightLine_StartY);
+  376   1          FindMiddleLine(LeftLinePoint, RightLinePoint, MiddleLinePoint);
+  377   1      }
+  378          
+  379          
+  380          uint8 Temp;
+  381          void Image_Process(void)
+  382          {
+  383   1          uint8 ImageThreshold;
+  384   1      
+  385   1          //Ñ¹ËõÍ¼Ïñ(ºóÐø¿ÉÒÔÔÚºóÃæÐ´else if¸üÐÂÑ¹Ëõ·Ö±æÂÊ)
+  386   1          #if CompressImage == 2
                    
                        //Ñ¹ËõÍ¼ÏñÖÁ63 * 40
                        GrayImage_Compress_63_40(mt9v03x_image,GrayImageArray);         
                        
-                   #else if CompressImage == 1
-  448   1       
-  449   1              //Ñ¹ËõÍ¼ÏñÖÁ94 * 60
-  450   1              GrayImage_Compress_94_60(mt9v03x_image,GrayImageArray);         
-  451   1      
-  452   1          #endif
-  453   1      
-  454   1          DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                    
-             -    //×ª»»³É»Ò¶ÈÖ±·½Í¼
-*** WARNING C98 IN LINE 454 OF ..\code\Image.c: parameter 1: pointer to different objects
-*** WARNING C91 IN LINE 454 OF ..\code\Image.c: '&': pointer to different objects
-  455   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
+                   #elif CompressImage == 1
+  392   1       
+  393   1              //Ñ¹ËõÍ¼ÏñÖÁ94 * 60
+  394   1              GrayImage_Compress_94_60(mt9v03x_image,GrayImageArray);         
+  395   1      
+  396   1          #endif
+  397   1      
+  398   1          DrawPixelChart(GrayImageArray[0], GrayImage_Wide * GrayImage_Height, PixelValueNum);                 
+             -       //×ª»»³É»Ò¶ÈÖ±·½Í¼
+  399   1          ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                
              -    //»ñÈ¡´ó½ò·¨ãÐÖµ
-  456   1          ImageBinaryzation(GrayImageArray,ImageThreshold,mt9v03x_image_Compress);                             
+  400   1          ImageBinaryzation(GrayImageArray,ImageThreshold,mt9v03x_image_Compress);                             
              - //¶þÖµ»¯£¨Õ¼ÓÃºÜ¶àÖ¡ÂÊ£¬¿´¿´»¹ÄÜ²»ÄÜÓÅ»¯£©
-  457   1          //ErosionFilter(mt9v03x_image_Compress);                                                             
+  401   1          //ErosionFilter(mt9v03x_image_Compress);                                                             
              - //°ËÁÚÓò¸¯Ê´ÂË²¨
-  458   1      
-  459   1          FindBoundary_EightNeighborhood(mt9v03x_image_Compress);                                              
+  402   1      
+  403   1          FindBoundary_EightNeighborhood(mt9v03x_image_Compress);                                              
              -                   //Ñ°ÕÒ×óÓÒ±ß½çµã
-  460   1      
-  461   1          //ÏÔÊ¾¶þÖµ»¯Í¼Ïñ£¬Õâ¸ö²»ÓÃ¶¯ÁË£¬ÊÇÎªÁË¸ú×î´óµÄ·Ö±æÂÊÇø·Ö£¬³ý·ÇÒ²ÓÐÒç³ötftµÄÏÔÊ¾ÇøÓòÔÙ¼Ó
-  462   1          #if CompressImage    
-  463   1          
-  464   1              tft180_show_gray_image(0, 0, mt9v03x_image_Compress, GrayImage_Wide, GrayImage_Height, GrayImage_
-             -Wide, GrayImage_Height, 0);
-*** WARNING C98 IN LINE 464 OF ..\code\Image.c: parameter 3: pointer to different objects
-*** WARNING C91 IN LINE 464 OF ..\code\Image.c: '&': pointer to different objects
-  465   1              
-  466   1          #else
+  404   1      
+  405   1          //ÏÔÊ¾¶þÖµ»¯Í¼Ïñ£¬Õâ¸ö²»ÓÃ¶¯ÁË£¬ÊÇÎªÁË¸ú×î´óµÄ·Ö±æÂÊÇø·Ö£¬³ý·ÇÒ²ÓÐÒç³ötftµÄÏÔÊ¾ÇøÓòÔÙ¼Ó
+  406   1          #if CompressImage    
+  407   1          
+  408   1              tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayIma
+             -ge_Wide, GrayImage_Height, 0);
+  409   1              
+  410   1          #else
                
-                       tft180_show_gray_image(0, 0, mt9v03x_image_Compress, GrayImage_Wide, GrayImage_Height, GrayImage_
-             -Wide / 2, GrayImage_Height / 2, 0);
+                       tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayIma
+             -ge_Wide / 2, GrayImage_Height / 2, 0);
                
                    #endif        
-  471   1      
-  472   1          /*µ÷ÊÔ´ó½ò·¨ãÐÖµ
-  473   1          tft180_show_uint8(80, 70, ImageThreshold);
-  474   1          */
-  475   1          
-  476   1          /*µ÷ÊÔ×î³¤°×ÁÐ
-  477   1          tft180_show_uint8(0, 102, FindMaxWhiteLine(GrayImageArray));
-  478   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),59,RGB565_RED);
-  479   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),58,RGB565_RED);
-  480   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),57,RGB565_RED);
-  481   1          */
-  482   1      
-  483   1          /*µ÷ÊÔ×óÓÒ±ß½çµã
-  484   1          tft180_draw_point((uint16)LeftLine_StartX,59,RGB565_RED);
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  19:38:21  PAGE 9   
+  415   1      
+  416   1          /*µ÷ÊÔ´ó½ò·¨ãÐÖµ
+  417   1          tft180_show_uint8(80, 70, ImageThreshold);
+  418   1          */
+  419   1          
+  420   1          /*µ÷ÊÔ×î³¤°×ÁÐ
+  421   1          tft180_show_uint8(0, 102, FindMaxWhiteLine(GrayImageArray));
+  422   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),59,RGB565_RED);
+  423   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),58,RGB565_RED);
+  424   1          tft180_draw_point((uint16)FindMaxWhiteLine(GrayImageArray),57,RGB565_RED);
+  425   1          */
+  426   1      
+  427   1          /*µ÷ÊÔ×óÓÒ±ß½çµã
+  428   1          tft180_draw_point((uint16)LeftLine_StartX,59,RGB565_RED);
+  429   1          tft180_draw_point((uint16)LeftLine_StartX,58,RGB565_RED);
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  22:42:38  PAGE 8   
 
-  485   1          tft180_draw_point((uint16)LeftLine_StartX,58,RGB565_RED);
-  486   1          tft180_draw_point((uint16)LeftLine_StartX,57,RGB565_RED);
-  487   1          tft180_draw_point((uint16)RightLine_StartX,59,RGB565_RED);
-  488   1          tft180_draw_point((uint16)RightLine_StartX,58,RGB565_RED);
-  489   1          tft180_draw_point((uint16)RightLine_StartX,57,RGB565_RED);
-  490   1          */
-  491   1      
-  492   1          /*
-  493   1          tft180_show_uint8(0, 102, LeftLinePoint[0][0]);
-  494   1          tft180_show_uint8(0, 118, LeftLinePoint[0][1]);
-  495   1          tft180_show_uint8(30, 102, RightLinePoint[0][0]);
-  496   1          tft180_show_uint8(30, 118, RightLinePoint[0][1]);
-  497   1          */
-  498   1         
-  499   1          for (Temp = 0;Temp < 80;Temp++)
-  500   1          {
-  501   2              tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
-  502   2              //tft180_draw_point((uint16)LeftLinePoint[Temp][0] - 1,(uint16)LeftLinePoint[Temp][1],RGB565_RED)
+  430   1          tft180_draw_point((uint16)LeftLine_StartX,57,RGB565_RED);
+  431   1          tft180_draw_point((uint16)RightLine_StartX,59,RGB565_RED);
+  432   1          tft180_draw_point((uint16)RightLine_StartX,58,RGB565_RED);
+  433   1          tft180_draw_point((uint16)RightLine_StartX,57,RGB565_RED);
+  434   1          */
+  435   1         
+  436   1          //ÏÔÊ¾×óÓÒ±ß½ç¼°ÖÐÏß
+  437   1          for (Temp = 0;Temp < PointNum;Temp++)
+  438   1          {
+  439   2              tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
+  440   2              //tft180_draw_point((uint16)LeftLinePoint[Temp][0] - 1,(uint16)LeftLinePoint[Temp][1],RGB565_RED)
              -;
-  503   2      
-  504   2              tft180_draw_point((uint16)RightLinePoint[Temp][0],(uint16)RightLinePoint[Temp][1],RGB565_RED);
-  505   2              //tft180_draw_point((uint16)RightLinePoint[Temp][0] + 1,(uint16)RightLinePoint[Temp][1],RGB565_RE
+  441   2      
+  442   2              tft180_draw_point((uint16)RightLinePoint[Temp][0],(uint16)RightLinePoint[Temp][1],RGB565_RED);
+  443   2              //tft180_draw_point((uint16)RightLinePoint[Temp][0] + 1,(uint16)RightLinePoint[Temp][1],RGB565_RE
              -D);
-  506   2      
-  507   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0],(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW
+  444   2      
+  445   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0],(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW
              -);
-  508   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0] + 1,(uint16)MiddleLinePoint[Temp][1],RGB565_YE
+  446   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0] + 1,(uint16)MiddleLinePoint[Temp][1],RGB565_YE
              -LLOW);
-  509   2              //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
-  510   2          }
-  511   1      }
+  447   2              //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
+  448   2          }
+  449   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      4621     ------
+  ecode size           =      3756     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =      7250     ------
+  xdata size           =      6998     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -594,8 +519,8 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        57     ------
+  hconst size          =       792     ------
 End of Module Information.
 
 
-C251 COMPILATION COMPLETE.  7 WARNING(S),  0 ERROR(S)
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

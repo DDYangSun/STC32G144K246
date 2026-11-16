@@ -39,7 +39,7 @@ void TFT_ShowFPS()
     }
 }
 
-void TFT_ShowData(uint8 TIM0_ShowTFT)
+void TFT_ShowData(void)
 {
     if (TIM0_ShowTFT)
     {

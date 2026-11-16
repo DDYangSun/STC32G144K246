@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               16/11/26  19:48:51  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               16/11/26  22:42:38  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -28,7 +28,7 @@ stmt  level    source
    16   2              Servo_Process();                            //角度环PID舵机控制
    17   2      
    18   2              TFT_ShowFPS();                              //TFT显示帧率
-   19   2              TFT_ShowData(TIM0_ShowTFT);                 //TFT显示其他数据
+   19   2              TFT_ShowData();                 //TFT显示其他数据
    20   2      
    21   2              if (mt9v03x_finish_flag)
    22   2              {
@@ -44,7 +44,7 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       122     ------
+  ecode size           =       118     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

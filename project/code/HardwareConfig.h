@@ -7,8 +7,9 @@ extern uint16 FPS;
 extern uint8 FPS_Flag;
 extern uint8 TIM0_ShowTFT;
 
+
 void Hardware_Init(void);
 void TFT_ShowFPS(void);
-void TFT_ShowData(uint8 TIM0_ShowTFT);
+void TFT_ShowData(void);
 
 #endif

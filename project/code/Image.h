@@ -1,8 +1,9 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
-#define PointNum                80
-#define CompressImage       1           //1为压缩图像，0为不压缩图像，默认不压缩
+//------------------------------修改分辨率--------------------------------------------
+//----------------------------------------------------------------------------------
+#define CompressImage       1                       //1为压缩图像，0为不压缩图像，默认不压缩
 
 #if CompressImage == 2                              //压缩分辨率为63 * 40
 
@@ -23,9 +24,13 @@
     #define GrayImage_Height    120
 
 #endif
+//----------------------------------------------------------------------------------
+
 
 #define FilterThreshold_Max     255 * 7             //周围7个点为白色
 #define FilterThreshold_Min     255 * 1             //周围7个点为黑色
+
+#define PointNum                GrayImage_Height    //取点的个数，现在每一行存一个，后面的点可覆盖
 
 void Image_Init(void);
 void Image_Process(void);
