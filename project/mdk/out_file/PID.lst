@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  PID                                                                16/11/26  14:45:22  PAGE 1   
+C251 COMPILER V5.60.0,  PID                                                                16/11/26  16:31:44  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE PID
@@ -43,117 +43,115 @@ stmt  level    source
    31   1        p->Error0 = p->Target - p->Actual;    //获取本次误差，目标值减实际值，即为误差值
    32   1        
    33   1        /*外环误差积分（累加）*/
-   34   1        /*如果Ki不为0，才进行误差积分，这样做的目的是便于调试*/
-   35   1        /*因为在调试时，我们可能先把Ki设置为0，这时积分项无作用，误差消除不了，误差积分会积累到很大的值*/
-   36   1        /*后续一旦Ki不为0，那么因为误差积分已经积累到很大的值了，这就导致积分项疯狂输出，不利于调试*/
-   37   1        if (p->Ki != 0)       //如果Ki不为0
-   38   1        {
-   39   2          p->ErrorInt += p->Error0; //进行误差积分
-   40   2        }
-   41   1        else              //否则
-   42   1        {
-   43   2          p->ErrorInt = 0;      //误差积分直接归0
-   44   2        }
-   45   1        
-   46   1        /*PID计算*/
-   47   1        /*使用位置式PID公式，计算得到输出值*/
-   48   1        p->Out = p->Kp * p->Error0
-   49   1             + p->Ki * p->ErrorInt
-   50   1             + p->Kd * (p->Error0 - p->Error1);
-   51   1        
-   52   1        /*输出限幅*/
-   53   1        if (p->Out > p->OutMax) {p->Out = p->OutMax;} //限制输出值最大为结构体指定的OutMax
-   54   1        if (p->Out < p->OutMin) {p->Out = p->OutMin;} //限制输出值最小为结构体指定的OutMin
-   55   1      }
-   56          
-C251 COMPILER V5.60.0,  PID                                                                16/11/26  14:45:22  PAGE 2   
+   34   1      
+   35   1        /*如果Ki不为0，才进行误差积分，这样做的目的是便于调试*/
+   36   1        /*因为在调试时，我们可能先把Ki设置为0，这时积分项无作用，误差消除不了，误差积分会积累到很大的值*/
+   37   1        /*后续一旦Ki不为0，那么因为误差积分已经积累到很大的值了，这就导致积分项疯狂输出，不利于调试*/
+   38   1        if (p->Ki != 0)       //如果Ki不为0
+   39   1        {
+   40   2          p->ErrorInt += p->Error0; //进行误差积分
+   41   2        }
+   42   1        else              //否则
+   43   1        {
+   44   2          p->ErrorInt = 0;      //误差积分直接归0
+   45   2        }
+   46   1        
+   47   1        /*PID计算*/
+   48   1        /*使用位置式PID公式，计算得到输出值*/
+   49   1        p->Out = p->Kp * p->Error0
+   50   1             + p->Ki * p->ErrorInt
+   51   1             + p->Kd * (p->Error0 - p->Error1);
+   52   1        
+   53   1        /*输出限幅*/
+   54   1        if (p->Out > p->OutMax) {p->Out = p->OutMax;} //限制输出值最大为结构体指定的OutMax
+   55   1        if (p->Out < p->OutMin) {p->Out = p->OutMin;} //限制输出值最小为结构体指定的OutMin
+   56   1      }
+C251 COMPILER V5.60.0,  PID                                                                16/11/26  16:31:44  PAGE 2   
 
-   57          #define Close_Ratio             0.7
-   58          
-   59          
-   60          PID_t Angle_PID = 
-   61          {
-   62            GrayImage_Wide / 2,   //目标值，由用户设定
-   63            0,            //实际值，从传感器读取
-   64            0,            //输出值，作用于执行器
-   65            
-   66            1,            //比例项权重
-   67            0,            //积分项权重
-   68            0,            //微分项权重
-   69            
-   70            0,            //本次误差
-   71            0,            //上次误差
-   72            0,            //误差积分
-   73            
-   74            13,           //输出限幅的最大值
-   75            -13,          //输出限幅的最小值
-   76          };
+   57          
+   58          PID_t Angle_PID = 
+   59          {
+   60            GrayImage_Wide / 2,   //目标值，由用户设定
+   61            0,            //实际值，从传感器读取
+   62            0,            //输出值，作用于执行器
+   63            
+   64            1,            //比例项权重
+   65            0,            //积分项权重
+   66            0,            //微分项权重
+   67            
+   68            0,            //本次误差
+   69            0,            //上次误差
+   70            0,            //误差积分
+   71            
+   72            13,           //输出限幅的最大值
+   73            -13,          //输出限幅的最小值
+   74          };
+   75          
+   76          #define Middle_PointNum     5
    77          
-   78          #define Middle_PointNum     5
-   79          
-   80          //找中线平均X
-   81          uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2]) 
-   82          {
-   83   1        uint8 i = 0,j = 0;                  
-   84   1        int16 Middle_PartPoint[Middle_PointNum];      //存放增大的几个点X的数组
-   85   1        int16 StartY = GrayImage_Height - 1,StopY = 0;    //Y值减小起始点Y，结束点Y
-   86   1        int16 PointGap;                   //两点间隔
-   87   1        uint8 AverageX;                   //中线平均X
+   78          //找中线平均X
+   79          uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2]) 
+   80          {
+   81   1        uint8 i = 0,j = 0;                  
+   82   1        int16 Middle_PartPoint[Middle_PointNum];      //存放增大的几个点X的数组
+   83   1        int16 StartY = GrayImage_Height - 1,StopY = 0;    //Y值减小起始点Y，结束点Y
+   84   1        int16 PointGap;                   //两点间隔
+   85   1        uint8 AverageX;                   //中线平均X
+   86   1      
+   87   1        StartY = MiddleLinePoint[0][1];
    88   1      
-   89   1        StartY = MiddleLinePoint[0][1];
-   90   1      
-   91   1        //找到减小结束点Y
-   92   1        for (i = 0;i < Middle_PointNum - 1;i++)
-   93   1        {
-   94   2          if (MiddleLinePoint[i][1] >= MiddleLinePoint[i + 1][1])
-   95   2          {
-   96   3            StopY = MiddleLinePoint[i][1];
-   97   3            break;
-   98   3          }
-   99   2        }
+   89   1        //找到减小结束点Y
+   90   1        for (i = 0;i < Middle_PointNum - 1;i++)
+   91   1        {
+   92   2          if (MiddleLinePoint[i][1] >= MiddleLinePoint[i + 1][1])
+   93   2          {
+   94   3            StopY = MiddleLinePoint[i][1];
+   95   3            break;
+   96   3          }
+   97   2        }
+   98   1      
+   99   1        PointGap = (StartY - StopY) / Middle_PointNum;    //求两点间隔
   100   1      
-  101   1        PointGap = (StartY - StopY) / Middle_PointNum;    //求两点间隔
-  102   1      
-  103   1        //将几个点存入数组
-  104   1        for (i = 0;i < Middle_PointNum;i++)
-  105   1        {
-  106   2          for (j = 0;j < PointNum;j++)
-  107   2          {
-  108   3            if (MiddleLinePoint[j][1] == StartY - i * PointGap)
-  109   3              break;
-  110   3          }
-  111   2      
-  112   2          Middle_PartPoint[i] = MiddleLinePoint[j][0];
-  113   2        }
-  114   1      
-  115   1        AverageX = (Middle_PartPoint[0] * 35 + Middle_PartPoint[1] * 30 + Middle_PartPoint[2] * 20 + Middle_Part
+  101   1        //将几个点存入数组
+  102   1        for (i = 0;i < Middle_PointNum;i++)
+  103   1        {
+  104   2          for (j = 0;j < PointNum;j++)
+  105   2          {
+  106   3            if (MiddleLinePoint[j][1] == StartY - i * PointGap)
+  107   3              break;
+  108   3          }
+  109   2      
+  110   2          Middle_PartPoint[i] = MiddleLinePoint[j][0];
+  111   2        }
+  112   1      
+  113   1        AverageX = (Middle_PartPoint[0] * 35 + Middle_PartPoint[1] * 30 + Middle_PartPoint[2] * 20 + Middle_Part
              -Point[3] * 10 + Middle_PartPoint[4] * 5) / 100;
-  116   1      
-  117   1        return AverageX;
-  118   1      }
-  119          
-  120          //PID
-  121          void Angle_PID_Process()
-C251 COMPILER V5.60.0,  PID                                                                16/11/26  14:45:22  PAGE 3   
+  114   1      
+  115   1        return AverageX;
+  116   1      }
+  117          
+  118          //PID
+  119          void Angle_PID_Process()
+  120          {
+  121   1        uint16 AverageX = 0;
+C251 COMPILER V5.60.0,  PID                                                                16/11/26  16:31:44  PAGE 3   
 
-  122          {
-  123   1        uint16 AverageX = 0;
-  124   1      
-  125   1        AverageX = Middle_AverageX(MiddleLinePoint);
-  126   1        Angle_PID.Actual = AverageX;
-  127   1        Angle_PID.Error0 = GrayImage_Wide / 2 - AverageX;
-  128   1        PID_Update(&Angle_PID);
-  129   1        Angle_Set += Angle_PID.Out;
-  130   1      
-  131   1      }
-  132          
-  133          
+  122   1      
+  123   1        AverageX = Middle_AverageX(MiddleLinePoint);
+  124   1        Angle_PID.Actual = AverageX;
+  125   1        Angle_PID.Error0 = GrayImage_Wide / 2 - AverageX;
+  126   1        PID_Update(&Angle_PID);
+  127   1        Angle_Set = SERVO_MiddlePos + Angle_PID.Out;
+  128   1      
+  129   1      }
+  130          
+  131          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      1338     ------
+  ecode size           =      1333     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

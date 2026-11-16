@@ -488,11 +488,14 @@ void Image_Process(void)
     tft180_draw_point((uint16)RightLine_StartX,58,RGB565_RED);
     tft180_draw_point((uint16)RightLine_StartX,57,RGB565_RED);
     */
+
+    /*
     tft180_show_uint8(0, 102, LeftLinePoint[0][0]);
     tft180_show_uint8(0, 118, LeftLinePoint[0][1]);
     tft180_show_uint8(30, 102, RightLinePoint[0][0]);
     tft180_show_uint8(30, 118, RightLinePoint[0][1]);
-    
+    */
+   
     for (Temp = 0;Temp < 80;Temp++)
     {
         tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);

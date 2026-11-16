@@ -41,7 +41,8 @@ void pit_handler()
     if (++TIM0_Count >= 1000)
     {
         tft180_show_uint16(0,134,Angle_Set);
-        tft180_show_float(40,134,Angle_PID.Kp,2,1);
+        tft180_show_float(40,134,Angle_PID.Kp,2,3);
+        tft180_show_float(0,108,Angle_PID.Error0,3,3);
         FPS_Flag = 1;
 		TIM0_Count = 0;
     }

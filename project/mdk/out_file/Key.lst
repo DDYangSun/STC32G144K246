@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Key                                                                16/11/26  14:45:22  PAGE 1   
+C251 COMPILER V5.60.0,  Key                                                                16/11/26  16:31:44  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Key
@@ -66,28 +66,28 @@ stmt  level    source
    54   1          Key_Down = Key_Value & (Key_Value ^ Key_Old);                   //任何数异或0都为自己，因此括号内得到
              -自己，“与”上自己或者对0“取反”（1111 1111）也为自己，有没有~纯看Key_Value的值
    55   1          Key_Up = ~Key_Value & (Key_Value ^ Key_Old);
-C251 COMPILER V5.60.0,  Key                                                                16/11/26  14:45:22  PAGE 2   
+C251 COMPILER V5.60.0,  Key                                                                16/11/26  16:31:44  PAGE 2   
 
    56   1          Key_Old = Key_Value;
    57   1      
    58   1          if (Key_Down == 1)
    59   1          {
-   60   2              Angle_PID.Kp += 0.1;
+   60   2              Angle_PID.Kp += 1;
    61   2          }
    62   1      
    63   1          if (Key_Down == 2)
    64   1          {
-   65   2              Angle_PID.Kp -= 0.1;
+   65   2              Angle_PID.Kp -= 1;
    66   2          }
    67   1      
    68   1          if (Key_Down == 3)
    69   1          {
-   70   2              Angle_PID.Kp += 1;
+   70   2              Angle_PID.Kp += 0.1;
    71   2          }
    72   1      
    73   1          if (Key_Down == 4)
    74   1          {
-   75   2              Angle_PID.Kp -= 1;
+   75   2              Angle_PID.Kp -= 0.1;
    76   2          }
    77   1      
    78   1              

@@ -57,22 +57,22 @@ void Key_Process()
 
     if (Key_Down == 1)
     {
-        Angle_PID.Kp += 0.1;
+        Angle_PID.Kp += 1;
     }
 
     if (Key_Down == 2)
     {
-        Angle_PID.Kp -= 0.1;
+        Angle_PID.Kp -= 1;
     }
 
     if (Key_Down == 3)
     {
-        Angle_PID.Kp += 1;
+        Angle_PID.Kp += 0.1;
     }
 
     if (Key_Down == 4)
     {
-        Angle_PID.Kp -= 1;
+        Angle_PID.Kp -= 0.1;
     }
 
         

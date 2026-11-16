@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  14:45:21  PAGE 1   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  16:28:19  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
@@ -53,22 +53,23 @@ stmt  level    source
    41   1          if (++TIM0_Count >= 1000)
    42   1          {
    43   2              tft180_show_uint16(0,134,Angle_Set);
-   44   2              tft180_show_float(40,134,Angle_PID.Kp,2,1);
-   45   2              FPS_Flag = 1;
-   46   2          TIM0_Count = 0;
-   47   2          }
-   48   1      
+   44   2              tft180_show_float(40,134,Angle_PID.Kp,2,3);
+   45   2              tft180_show_float(0,108,Angle_PID.Error0,3,3);
+   46   2              FPS_Flag = 1;
+   47   2          TIM0_Count = 0;
+   48   2          }
    49   1      
-   50   1      }
-   51          
+   50   1      
+   51   1      }
+   52          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       218     ------
-C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  14:45:21  PAGE 2   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  16:28:19  PAGE 2   
 
+  ecode size           =       246     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

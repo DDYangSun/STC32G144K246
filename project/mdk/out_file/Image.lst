@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 1   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Image
@@ -66,7 +66,7 @@ stmt  level    source
    50          //-------------------------------------------------------------------------------------------------------
              -------------
    51          void GrayImage_Compress_94_60(uint8 GrayImage[MT9V03X_H][MT9V03X_W], uint8 GrayImage_Compress[MT9V03X_H /
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 2   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 2   
 
              - 2][MT9V03X_W / 2])
    52          {
@@ -134,7 +134,7 @@ stmt  level    source
   114                      img[i][j] = FilterTemp[i][j];
   115                  }
   116              }
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 3   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 3   
 
   117          }
   118          */
@@ -202,7 +202,7 @@ stmt  level    source
   176   3                  else
   177   3                  {
   178   4                      break;
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 4   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 4   
 
   179   4                  }
   180   3              }
@@ -270,7 +270,7 @@ stmt  level    source
   238   4                      break;
   239   4                  }
   240   3              }
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 5   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 5   
 
   241   2          }
   242   1          RightLine_StartX = i;
@@ -338,7 +338,7 @@ stmt  level    source
   303          {
   304   1          int16 x0 = 0,y0 = 0;
   305   1          int16 x1 = 0,y1 = 0;    
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 6   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 6   
 
   306   1          uint16 i = 0,j = 0;
   307   1          uint16 Find_Flag = 0;
@@ -406,7 +406,7 @@ stmt  level    source
   367   3                  break;
   368   3              }
   369   2          }
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 7   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 7   
 
   370   1      
   371   1          //元素1
@@ -474,7 +474,7 @@ stmt  level    source
   430   1          FindLeftBoundary_ClimbLine(mt9v03x_image_Eight);
   431   1          FindRightBoundary_ClimbLine(mt9v03x_image_Eight);
   432   1          FindMiddleLine(LeftLinePoint, RightLinePoint, MiddleLinePoint);
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 8   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 8   
 
 *** WARNING C91 IN LINE 432 OF ..\code\Image.c: '&': pointer to different objects
 *** WARNING C91 IN LINE 432 OF ..\code\Image.c: '&': pointer to different objects
@@ -542,7 +542,7 @@ stmt  level    source
   482   1      
   483   1          /*调试左右边界点
   484   1          tft180_draw_point((uint16)LeftLine_StartX,59,RGB565_RED);
-C251 COMPILER V5.60.0,  Image                                                              16/11/26  14:37:36  PAGE 9   
+C251 COMPILER V5.60.0,  Image                                                              16/11/26  16:23:24  PAGE 9   
 
   485   1          tft180_draw_point((uint16)LeftLine_StartX,58,RGB565_RED);
   486   1          tft180_draw_point((uint16)LeftLine_StartX,57,RGB565_RED);
@@ -550,34 +550,37 @@ stmt  level    source
   488   1          tft180_draw_point((uint16)RightLine_StartX,58,RGB565_RED);
   489   1          tft180_draw_point((uint16)RightLine_StartX,57,RGB565_RED);
   490   1          */
-  491   1          tft180_show_uint8(0, 102, LeftLinePoint[0][0]);
-  492   1          tft180_show_uint8(0, 118, LeftLinePoint[0][1]);
-  493   1          tft180_show_uint8(30, 102, RightLinePoint[0][0]);
-  494   1          tft180_show_uint8(30, 118, RightLinePoint[0][1]);
-  495   1          
-  496   1          for (Temp = 0;Temp < 80;Temp++)
-  497   1          {
-  498   2              tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
-  499   2              //tft180_draw_point((uint16)LeftLinePoint[Temp][0] - 1,(uint16)LeftLinePoint[Temp][1],RGB565_RED)
+  491   1      
+  492   1          /*
+  493   1          tft180_show_uint8(0, 102, LeftLinePoint[0][0]);
+  494   1          tft180_show_uint8(0, 118, LeftLinePoint[0][1]);
+  495   1          tft180_show_uint8(30, 102, RightLinePoint[0][0]);
+  496   1          tft180_show_uint8(30, 118, RightLinePoint[0][1]);
+  497   1          */
+  498   1         
+  499   1          for (Temp = 0;Temp < 80;Temp++)
+  500   1          {
+  501   2              tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
+  502   2              //tft180_draw_point((uint16)LeftLinePoint[Temp][0] - 1,(uint16)LeftLinePoint[Temp][1],RGB565_RED)
              -;
-  500   2      
-  501   2              tft180_draw_point((uint16)RightLinePoint[Temp][0],(uint16)RightLinePoint[Temp][1],RGB565_RED);
-  502   2              //tft180_draw_point((uint16)RightLinePoint[Temp][0] + 1,(uint16)RightLinePoint[Temp][1],RGB565_RE
-             -D);
   503   2      
-  504   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0],(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW
+  504   2              tft180_draw_point((uint16)RightLinePoint[Temp][0],(uint16)RightLinePoint[Temp][1],RGB565_RED);
+  505   2              //tft180_draw_point((uint16)RightLinePoint[Temp][0] + 1,(uint16)RightLinePoint[Temp][1],RGB565_RE
+             -D);
+  506   2      
+  507   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0],(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW
              -);
-  505   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0] + 1,(uint16)MiddleLinePoint[Temp][1],RGB565_YE
+  508   2              tft180_draw_point((uint16)MiddleLinePoint[Temp][0] + 1,(uint16)MiddleLinePoint[Temp][1],RGB565_YE
              -LLOW);
-  506   2              //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
-  507   2          }
-  508   1      }
+  509   2              //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
+  510   2          }
+  511   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =      4689     ------
+  ecode size           =      4621     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
