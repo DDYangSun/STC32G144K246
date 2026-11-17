@@ -21,10 +21,10 @@ void Servo_Ctrl_Duty(uint16 Servo_Duty)                               //¶æ»ú¿ØÖÆ
 
 void Servo_AngleRestriction()
 {
-    if (Angle_Set >= 108)
-        Angle_Set = 108;
-    if (Angle_Set <= 82)
-        Angle_Set = 82;
+    if (Angle_Set >= 111)
+        Angle_Set = 111;
+    if (Angle_Set <= 79)
+        Angle_Set = 79;
 }
 
 void Servo_Process()

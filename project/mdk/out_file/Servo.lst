@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Servo                                                              16/11/26  19:38:21  PAGE 1   
+C251 COMPILER V5.60.0,  Servo                                                              17/11/26  22:05:36  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Servo
@@ -33,10 +33,10 @@ stmt  level    source
    21          
    22          void Servo_AngleRestriction()
    23          {
-   24   1          if (Angle_Set >= 108)
-   25   1              Angle_Set = 108;
-   26   1          if (Angle_Set <= 82)
-   27   1              Angle_Set = 82;
+   24   1          if (Angle_Set >= 111)
+   25   1              Angle_Set = 111;
+   26   1          if (Angle_Set <= 79)
+   27   1              Angle_Set = 79;
    28   1      }
    29          
    30          void Servo_Process()

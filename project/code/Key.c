@@ -2,6 +2,8 @@
 #include "Key.h"
 #include "Servo.h"
 #include "PID.h"
+#include "Image.h"
+#include "Motor.h"
 
 /*
     蓝桥杯大弟子来也！！！！
@@ -45,6 +47,8 @@ uint8 Key_Read()
     return Key_Temp;
 }
 
+int8 Motor_Temp = 10;
+
 void Key_Process()
 {
     if (Key_Slow != 0)      return;
@@ -57,23 +61,45 @@ void Key_Process()
 
     if (Key_Down == 1)
     {
-        Angle_PID.Kp += 1;
+        Angle_PID.Kp += 0.1;
+        //Motor_Temp += 5;
+        //Angle_PID.Kd += 1;
     }
 
     if (Key_Down == 2)
     {
-        Angle_PID.Kp -= 1;
+        Angle_PID.Kp -= 0.1;
+        //Motor_Temp -= 5;
+        //Angle_PID.Kd -= 1;
     }
 
     if (Key_Down == 3)
     {
-        Angle_PID.Kp += 0.1;
+        //Angle_PID.Kp += 0.1;
+        //Motor_Temp += 1;
+        Angle_PID.Kd += 0.01;
     }
 
     if (Key_Down == 4)
     {
-        Angle_PID.Kp -= 0.1;
+        //Angle_PID.Kp -= 0.1;
+        //Motor_Temp -= 1;
+        Angle_PID.Kd += 0.001;
+    }
+
+    if (Key_Down == 5)
+    {
+        /*
+        if (TFT_State)
+            TFT_State = 0;
+        else
+            TFT_State = 1;
+        */
+        Motor_Temp += 1;
+        Motor_SetDuty(PWM_L,Motor_Temp);
+         Motor_SetDuty(PWM_R,Motor_Temp);
     }
 
         
 }
+

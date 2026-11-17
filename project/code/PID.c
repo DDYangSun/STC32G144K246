@@ -69,16 +69,50 @@ PID_t Angle_PID =
 	0,						//上次误差
 	0,						//误差积分
 	
-	13,						//输出限幅的最大值
-	-13,					//输出限幅的最小值
+	16,						//输出限幅的最大值
+	-16,					//输出限幅的最小值
 };
 
 #define Middle_PointNum			5
 
 //找中线平均X
-uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2])
+uint16 Middle_AverageX(int16 MiddleLinePoint[PointNum][2]) 
 {
-    return (uint16)MiddleLinePoint[0][0];
+	uint8 i = 0,j = 0;									
+	int16 Middle_PartPoint[Middle_PointNum];			//存放增大的几个点X的数组
+	int16 StartY = GrayImage_Height - 1,StopY = 0;		//Y值减小起始点Y，结束点Y
+	int16 PointGap;										//两点间隔
+	uint8 AverageX;										//中线平均X
+
+	StartY = MiddleLinePoint[0][1];
+
+	//找到减小结束点Y
+	for (i = 0;i < Middle_PointNum - 1;i++)
+	{
+		if (MiddleLinePoint[i][1] >= MiddleLinePoint[i + 1][1])
+		{
+			StopY = MiddleLinePoint[i][1];
+			break;
+		}
+	}
+
+	PointGap = (StartY - StopY) / Middle_PointNum;		//求两点间隔
+
+	//将几个点存入数组
+	for (i = 0;i < Middle_PointNum;i++)
+	{
+		for (j = 0;j < PointNum;j++)
+		{
+			if (MiddleLinePoint[j][1] == StartY - i * PointGap)
+				break;
+		}
+
+		Middle_PartPoint[i] = MiddleLinePoint[j][0];
+	}
+
+	AverageX = (Middle_PartPoint[0] * 35 + Middle_PartPoint[1] * 30 + Middle_PartPoint[2] * 20 + Middle_PartPoint[3] * 10 + Middle_PartPoint[4] * 5) / 100;
+
+	return AverageX;
 }
 
 //PID
@@ -88,10 +122,8 @@ void Angle_PID_Process()
 
 	AverageX = Middle_AverageX(MiddleLinePoint);
 	Angle_PID.Actual = AverageX;
-	Angle_PID.Error0 = GrayImage_Wide / 2 - AverageX;
 	PID_Update(&Angle_PID);
 	Angle_Set = SERVO_MiddlePos + Angle_PID.Out;
-
 }
 
 

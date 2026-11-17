@@ -50,6 +50,7 @@
 ".\out_file\Servo.obj",
 ".\out_file\Key.obj",
 ".\out_file\PID.obj",
+".\out_file\Motor.obj",
 ".\out_file\isr.obj",
 ".\out_file\main.obj" 
 TO ".\out_file\SEEKFREE" 

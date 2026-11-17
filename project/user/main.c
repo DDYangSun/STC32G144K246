@@ -10,13 +10,15 @@ void main(void)
     debug_init();                                   // 调试串口信息初始化
     Hardware_Init();
 
+    TFT_State = 0;                                  //控制是否显示图像
+
     while(1)
     {
         Key_Process();                              //按键控制
         Servo_Process();                            //角度环PID舵机控制
 
         TFT_ShowFPS();                              //TFT显示帧率
-        TFT_ShowData();                 //TFT显示其他数据
+        TFT_ShowData();             //TFT显示其他数据
 
         if (mt9v03x_finish_flag)
         {

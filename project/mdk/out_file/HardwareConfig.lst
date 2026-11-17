@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  22:42:38  PAGE 1   
+C251 COMPILER V5.60.0,  HardwareConfig                                                     17/11/26  22:09:15  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE HardwareConfig
@@ -15,82 +15,113 @@ stmt  level    source
     3          #include "Image.h"
     4          #include "Servo.h"
     5          #include "Key.h"
-    6          #include "PID.h"
-    7          
-    8          uint16 FPS = 0;
-    9          uint8 FPS_Flag = 0;
-   10          
-   11          uint8 TIM0_ShowTFT = 0;                     //TFT显示标志位
-   12          
-   13          void Hardware_Debug_Init()
-   14          {
-   15   1          tft180_show_string(0,70,"Threshold:");
-   16   1          tft180_show_string(0,87,"FPS:");
-   17   1      }
-   18          
-   19          void Hardware_Init(void)
-   20          {
-   21   1          Key_Init();                             //按键初始化
-   22   1          Image_Init();                           //图像显示初始化
-   23   1          tft180_init();                          //tft180初始化
-   24   1          mt9v03x_init();                         //摄像头初始化：返回值为0则成功、非0则失败（这里不处理）
-   25   1          Servo_Init();                           //舵机初始化
-   26   1          Hardware_Debug_Init();                  //硬件调试初始化
-   27   1      
-   28   1          //开启定时器0
-   29   1          pit_ms_init(TIM0_PIT, 1, pit_TIM0);
-   30   1      }
-   31          
-   32          void TFT_ShowFPS()
-   33          {
-   34   1          if (FPS_Flag)
-   35   1          {
-   36   2              tft180_show_uint16(65,87,FPS);
-   37   2          FPS = 0;
-   38   2              FPS_Flag = 0;
-   39   2          }
-   40   1      }
-   41          
-   42          void TFT_ShowData(void)
-   43          {
-   44   1          if (TIM0_ShowTFT)
-   45   1          {
-   46   2              tft180_show_uint16(0,134,Angle_Set);
-   47   2              tft180_show_float(40,134,Angle_PID.Kp,2,3);
-   48   2              tft180_show_float(0,108,Angle_PID.Error0,3,3);
-   49   2              TIM0_ShowTFT = 0;
-   50   2          }
-   51   1      }
-   52          
-   53          //定时器0的中断
-   54          void pit_TIM0()
-   55          {
-   56   1          static uint16 TIM0_Count = 0;
-C251 COMPILER V5.60.0,  HardwareConfig                                                     16/11/26  22:42:38  PAGE 2   
+    6          #include "Motor.h"
+    7          #include "PID.h"
+    8          
+    9          uint16 FPS = 0;
+   10          uint8 FPS_Flag = 0;
+   11          
+   12          uint8 TIM0_ShowTFTData = 0;                     //TFT显示标志位
+   13          
+   14          void Hardware_Debug_Init()
+   15          {
+   16   1          if (TFT_State)
+   17   1          {
+   18   2              tft180_show_string(0,70,"Threshold:");
+   19   2              tft180_show_string(0,87,"FPS:");
+   20   2          }
+   21   1      }
+   22          
+   23          void Hardware_Init(void)
+   24          {
+   25   1          Key_Init();                             //按键初始化
+   26   1          Image_Init();                           //图像显示初始化
+   27   1          tft180_init();                          //tft180初始化
+   28   1          mt9v03x_init();                         //摄像头初始化：返回值为0则成功、非0则失败（这里不处理）
+   29   1          Servo_Init();                           //舵机初始化
+   30   1          Motor_Init();                           //电机初始化
+   31   1          Encoder_Init();                         //编码器初始化
+   32   1          Hardware_Debug_Init();                  //硬件调试初始化
+   33   1      
+   34   1          //开启定时器0
+   35   1          pit_ms_init(TIM0_PIT, 1, pit_TIM0);
+   36   1      }
+   37          
+   38          void TFT_ShowFPS()
+   39          {
+   40   1          if (FPS_Flag)
+   41   1          {
+   42   2              tft180_show_uint16(65,87,FPS);
+   43   2          FPS = 0;
+   44   2              FPS_Flag = 0;
+   45   2          }
+   46   1      }
+   47          
+   48          void TFT_ShowData()
+   49          {
+   50   1          if (TIM0_ShowTFTData == 1)
+   51   1          {
+   52   2              // tft180_show_uint16(0,134,Angle_Set);
+   53   2              // tft180_show_float(40,134,Angle_PID.Kp,2,3);
+   54   2              // tft180_show_float(0,108,Angle_PID.Error0,3,3);
+   55   2              //tft180_show_int8(0,71,Motor_Temp);
+   56   2              tft180_show_float(0,87,Angle_PID.Kp,2,4);
+C251 COMPILER V5.60.0,  HardwareConfig                                                     17/11/26  22:09:15  PAGE 2   
 
-   57   1          
-   58   1          //缓速系统
-   59   1          if (++Key_Slow >= 10)       Key_Slow = 0;
-   60   1      
-   61   1          //计算帧数
-   62   1          if (++TIM0_Count >= 1000)
-   63   1          {
-   64   2              TIM0_ShowTFT = 1;
-   65   2              FPS_Flag = 1;
-   66   2          TIM0_Count = 0;
-   67   2          }
-   68   1      }
-   69          
+   57   2              tft180_show_float(0,103,Angle_PID.Kd,2,4);
+   58   2              tft180_show_float(0,119,Angle_PID.Error0,3,3);
+   59   2              tft180_show_int16(0,135,Encoder_LeftCnt);
+   60   2              tft180_show_int16(50,135,Encoder_RightCnt);
+   61   2      
+   62   2              TIM0_ShowTFTData = 0;
+   63   2          }
+   64   1      }
+   65          
+   66          //定时器0的中断
+   67          void pit_TIM0()
+   68          {
+   69   1          static uint16 TIM0_Count_FPS = 0;                   //FPS计时
+   70   1          static uint16 TIM0_Count_TFTShow = 0;               //编码器计时
+   71   1          static uint16 TIM0_Count_Encoder = 0;               //编码器计时
+   72   1      
+   73   1          //缓速系统
+   74   1          if (++Key_Slow >= 10)       Key_Slow = 0;
+   75   1      
+   76   1          //计算帧数
+   77   1          if (++TIM0_Count_FPS >= 1000)
+   78   1          {
+   79   2              FPS_Flag = 1;
+   80   2          TIM0_Count_FPS = 0;
+   81   2          }
+   82   1      
+   83   1          //TFT显示数据
+   84   1          if (++TIM0_Count_TFTShow >= 20)
+   85   1          {
+   86   2              TIM0_ShowTFTData = 1;
+   87   2              TIM0_Count_TFTShow = 0;
+   88   2          }
+   89   1      
+   90   1          //编码器计数
+   91   1          if (++TIM0_Count_Encoder >= 20)
+   92   1          {
+   93   2              Encoder_LeftCnt = -encoder_get_count(ENCODER_Left);
+   94   2              Encoder_RightCnt = encoder_get_count(ENCODER_Right);
+   95   2              encoder_clear_count(ENCODER_Left);
+   96   2              encoder_clear_count(ENCODER_Right);
+   97   2              TIM0_Count_Encoder = 0;
+   98   2          }
+   99   1      }
+  100          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       308     ------
+  ecode size           =       477     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         6     ------
+  xdata size           =        10     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -100,7 +131,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        42     ------
+  hconst size          =        56     ------
 End of Module Information.
 
 

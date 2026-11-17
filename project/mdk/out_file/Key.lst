@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Key                                                                16/11/26  19:38:21  PAGE 1   
+C251 COMPILER V5.60.0,  Key                                                                17/11/26  22:05:36  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Key
@@ -14,94 +14,120 @@ stmt  level    source
     2          #include "Key.h"
     3          #include "Servo.h"
     4          #include "PID.h"
-    5          
-    6          /*
-    7              蓝桥杯大弟子来也！！！！
-    8          */
-    9          
-   10          #define Key_1               IO_PB0
-   11          #define Key_2               IO_PB1
-   12          #define Key_3               IO_PB2
-   13          #define Key_4               IO_PB3
-   14          #define Key_5               IO_PB4
-   15          
-   16          uint8 Key_Slow = 0;                 //按键缓速
+    5          #include "Image.h"
+    6          #include "Motor.h"
+    7          
+    8          /*
+    9              蓝桥杯大弟子来也！！！！
+   10          */
+   11          
+   12          #define Key_1               IO_PB0
+   13          #define Key_2               IO_PB1
+   14          #define Key_3               IO_PB2
+   15          #define Key_4               IO_PB3
+   16          #define Key_5               IO_PB4
    17          
-   18          uint8 Key_Value = 0,Key_Old = 0;
-   19          uint8 Key_Down = 0,Key_Up = 0;
-   20          
-   21          void Key_Init()
-   22          {
-   23   1          gpio_init(Key_1,GPI,1,GPI_PULL_UP);
-   24   1          gpio_init(Key_2,GPI,1,GPI_PULL_UP);
-   25   1          gpio_init(Key_3,GPI,1,GPI_PULL_UP);
-   26   1          gpio_init(Key_4,GPI,1,GPI_PULL_UP);
-   27   1          gpio_init(Key_5,GPI,1,GPI_PULL_UP);
-   28   1      }
-   29          
-   30          uint8 Key_Read()
-   31          {
-   32   1          uint8 Key_Temp = 0x00;
-   33   1      
-   34   1          if (gpio_get_level(Key_1) == 0)
-   35   1              Key_Temp = 1;
-   36   1          if (gpio_get_level(Key_2) == 0)
-   37   1              Key_Temp = 2;
-   38   1          if (gpio_get_level(Key_3) == 0)
-   39   1              Key_Temp = 3;
-   40   1          if (gpio_get_level(Key_4) == 0)
-   41   1              Key_Temp = 4;
-   42   1          if (gpio_get_level(Key_5) == 0)
-   43   1              Key_Temp = 5;
-   44   1      
-   45   1          return Key_Temp;
-   46   1      }
-   47          
-   48          void Key_Process()
-   49          {
-   50   1          if (Key_Slow != 0)      return;
-   51   1          Key_Slow = 1;
-   52   1      
-   53   1          Key_Value = Key_Read();
-   54   1          Key_Down = Key_Value & (Key_Value ^ Key_Old);                   //任何数异或0都为自己，因此括号内得到
-             -自己，“与”上自己或者对0“取反”（1111 1111）也为自己，有没有~纯看Key_Value的值
-   55   1          Key_Up = ~Key_Value & (Key_Value ^ Key_Old);
-C251 COMPILER V5.60.0,  Key                                                                16/11/26  19:38:21  PAGE 2   
+   18          uint8 Key_Slow = 0;                 //按键缓速
+   19          
+   20          uint8 Key_Value = 0,Key_Old = 0;
+   21          uint8 Key_Down = 0,Key_Up = 0;
+   22          
+   23          void Key_Init()
+   24          {
+   25   1          gpio_init(Key_1,GPI,1,GPI_PULL_UP);
+   26   1          gpio_init(Key_2,GPI,1,GPI_PULL_UP);
+   27   1          gpio_init(Key_3,GPI,1,GPI_PULL_UP);
+   28   1          gpio_init(Key_4,GPI,1,GPI_PULL_UP);
+   29   1          gpio_init(Key_5,GPI,1,GPI_PULL_UP);
+   30   1      }
+   31          
+   32          uint8 Key_Read()
+   33          {
+   34   1          uint8 Key_Temp = 0x00;
+   35   1      
+   36   1          if (gpio_get_level(Key_1) == 0)
+   37   1              Key_Temp = 1;
+   38   1          if (gpio_get_level(Key_2) == 0)
+   39   1              Key_Temp = 2;
+   40   1          if (gpio_get_level(Key_3) == 0)
+   41   1              Key_Temp = 3;
+   42   1          if (gpio_get_level(Key_4) == 0)
+   43   1              Key_Temp = 4;
+   44   1          if (gpio_get_level(Key_5) == 0)
+   45   1              Key_Temp = 5;
+   46   1      
+   47   1          return Key_Temp;
+   48   1      }
+   49          
+   50          int8 Motor_Temp = 10;
+   51          
+   52          void Key_Process()
+   53          {
+   54   1          if (Key_Slow != 0)      return;
+   55   1          Key_Slow = 1;
+   56   1      
+C251 COMPILER V5.60.0,  Key                                                                17/11/26  22:05:36  PAGE 2   
 
-   56   1          Key_Old = Key_Value;
-   57   1      
-   58   1          if (Key_Down == 1)
-   59   1          {
-   60   2              Angle_PID.Kp += 1;
-   61   2          }
-   62   1      
-   63   1          if (Key_Down == 2)
-   64   1          {
-   65   2              Angle_PID.Kp -= 1;
-   66   2          }
-   67   1      
-   68   1          if (Key_Down == 3)
-   69   1          {
-   70   2              Angle_PID.Kp += 0.1;
-   71   2          }
-   72   1      
-   73   1          if (Key_Down == 4)
-   74   1          {
-   75   2              Angle_PID.Kp -= 0.1;
-   76   2          }
-   77   1      
-   78   1              
-   79   1      }
+   57   1          Key_Value = Key_Read();
+   58   1          Key_Down = Key_Value & (Key_Value ^ Key_Old);                   //任何数异或0都为自己，因此括号内得到
+             -自己，“与”上自己或者对0“取反”（1111 1111）也为自己，有没有~纯看Key_Value的值
+   59   1          Key_Up = ~Key_Value & (Key_Value ^ Key_Old);
+   60   1          Key_Old = Key_Value;
+   61   1      
+   62   1          if (Key_Down == 1)
+   63   1          {
+   64   2              Angle_PID.Kp += 0.1;
+   65   2              //Motor_Temp += 5;
+   66   2              //Angle_PID.Kd += 1;
+   67   2          }
+   68   1      
+   69   1          if (Key_Down == 2)
+   70   1          {
+   71   2              Angle_PID.Kp -= 0.1;
+   72   2              //Motor_Temp -= 5;
+   73   2              //Angle_PID.Kd -= 1;
+   74   2          }
+   75   1      
+   76   1          if (Key_Down == 3)
+   77   1          {
+   78   2              //Angle_PID.Kp += 0.1;
+   79   2              //Motor_Temp += 1;
+   80   2              Angle_PID.Kd += 0.01;
+   81   2          }
+   82   1      
+   83   1          if (Key_Down == 4)
+   84   1          {
+   85   2              //Angle_PID.Kp -= 0.1;
+   86   2              //Motor_Temp -= 1;
+   87   2              Angle_PID.Kd += 0.001;
+   88   2          }
+   89   1      
+   90   1          if (Key_Down == 5)
+   91   1          {
+   92   2              /*
+   93   2              if (TFT_State)
+   94   2                  TFT_State = 0;
+   95   2              else
+   96   2                  TFT_State = 1;
+   97   2              */
+   98   2              Motor_Temp += 1;
+   99   2              Motor_SetDuty(PWM_L,Motor_Temp);
+  100   2               Motor_SetDuty(PWM_R,Motor_Temp);
+  101   2          }
+  102   1      
+  103   1              
+  104   1      }
+  105          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       415     ------
+  ecode size           =       462     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
-  xdata size           =         6     ------
+  xdata size           =         7     ------
   xdata-const size     =    ------     ------
   edata size           =    ------     ------
   bit size             =    ------     ------
@@ -109,9 +135,11 @@ Module Information          Static   Overlayable
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
+C251 COMPILER V5.60.0,  Key                                                                17/11/26  22:05:36  PAGE 3   
+
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        30     ------
+  hconst size          =        36     ------
 End of Module Information.
 
 

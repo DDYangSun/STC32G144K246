@@ -2,7 +2,7 @@
 #define __SERVO_H__
 
 #define SERVO_PWM                   PWME_CH1P_PA0
-#define SERVO_FREQ                  (50)
+#define SERVO_FREQ                  (250)
 
 //#define SERVO_DUTY(x)           PWM_DUTY_MAX * (0.5 + 1 / 90 * x) * SERVO_Freq / 1000                 防止浮点运算
 #define SERVO_DUTY(x)           ((uint32)PWM_DUTY_MAX * (45 + (x)) * SERVO_FREQ / 1000 / 90)                    //扩大90倍再除以90

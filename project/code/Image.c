@@ -11,6 +11,8 @@ uint8 LeftLine_StartX = 0,RightLine_StartX = 255;                               
 uint8 LeftLine_StartY = GrayImage_Height - 1,RightLine_StartY = GrayImage_Height - 1;                                //左右边界点
 uint8 LeftFlag = 0,RightFlag = 0;                                           //左右边线是否在最底部搜到线
 
+uint8 TFT_State = 0;
+
 
 //初始化
 void Image_Init()
@@ -195,9 +197,6 @@ void FindBoundaryPoint(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide],uin
 {
     uint8 i = 0,j = 0;
 
-    LeftFlag = 0;
-    RightFlag = 0;
-
     //向左找边界
     for (i = StartPos;i > 0;i--)
     {
@@ -346,18 +345,85 @@ void FindBoundary_ClimbLine(uint8 mt9v03x_image[GrayImage_Height][GrayImage_Wide
 }
 
 //找中线
-void FindMiddleLine(int16 LeftLinePoint[PointNum][2],int16 RightLinePoint[PointNum][2],int16 MiddleLinePoint[PointNum][2])
+void FindMiddleLine(uint16 LeftLinePoint[PointNum][2],uint16 RightLinePoint[PointNum][2],uint16 MiddleLinePoint[PointNum][2])
 {
-    uint16 i = 0;
+    uint8 i = 0;
+    uint8 LeftLine_TouchRight_Flag = 0,RightLine_TouchLeft_Flag = 0;
+    uint16 Dif_Value;                           //边线加的固定差值
+    int16 MiddleX,MiddleY;                     //中线点X,Y坐标
 
-    // 第一个找到的点：左右起点取 x/y 中值
-    MiddleLinePoint[0][0] = (LeftLine_StartX + RightLine_StartX) / 2;
-    MiddleLinePoint[0][1] = (LeftLine_StartY + RightLine_StartY) / 2;
-
-    for (i = 1;i < PointNum;i++)
+    //判断是否碰到对向边界
+    for (i = 0;i < PointNum;i++)
     {
-        MiddleLinePoint[i][0] = (LeftLinePoint[i][0] + RightLinePoint[i][0]) / 2;
-        MiddleLinePoint[i][1] = (LeftLinePoint[i][1] + RightLinePoint[i][1]) / 2;
+        if (LeftLinePoint[i][0] == GrayImage_Wide - 1)
+        {
+            LeftLine_TouchRight_Flag = 1;
+            break;                                      //只要有一个碰到边界了，另一个一定没碰到
+        } 
+
+        if (RightLinePoint[i][0] == 0)
+        {
+            RightLine_TouchLeft_Flag = 1;
+            break;
+        }
+    }
+
+    //元素1
+    //左边线碰到最右侧并且右边没搜到边线（加上左边线距离右边的差值的三分之二，如果超过了显示区域，后面的就不显示了）
+    if (LeftLine_TouchRight_Flag == 1 && RightFlag == 0)
+    {
+        Dif_Value = ((GrayImage_Wide - 1 - LeftLinePoint[0][0]) << 1) / 3;              //计算第一个左边线的点距离屏幕有边沿差值的三分之二
+        for (i = 0;i < PointNum;i++)
+        {
+            MiddleX = LeftLinePoint[i][0] + Dif_Value;
+            MiddleY = LeftLinePoint[i][1];
+            if (MiddleX < GrayImage_Wide)
+            {
+                MiddleLinePoint[i][0] = MiddleX;
+                MiddleLinePoint[i][1] = LeftLinePoint[i][1];
+            }
+            else
+            {
+                MiddleLinePoint[i][0] = MiddleLinePoint[i - 1][0];
+                MiddleLinePoint[i][1] = MiddleLinePoint[i - 1][1];
+            }
+        }
+    }
+    else if (RightLine_TouchLeft_Flag == 1 && LeftFlag == 0)        //右边线碰到最左侧并且左边没搜到边线
+    {
+        Dif_Value = (LeftLinePoint[0][0]) << 1 / 3;              //计算第一个左边线的点距离屏幕有边沿差值的三分之二
+        for (i = 0;i < PointNum;i++)
+        {
+            MiddleX = LeftLinePoint[i][0] - Dif_Value;
+            MiddleY = LeftLinePoint[i][1];
+            if (MiddleX >= 0)
+            {
+                MiddleLinePoint[i][0] = MiddleX;
+                MiddleLinePoint[i][1] = LeftLinePoint[i][1];
+            }
+            else
+            {
+                MiddleLinePoint[i][0] = MiddleLinePoint[i - 1][0];
+                MiddleLinePoint[i][1] = MiddleLinePoint[i - 1][1];
+            }
+        }
+    }
+
+    if (LeftLine_StartY < RightLine_StartY)
+    {
+        for (i = 0;i < LeftLine_StartY + 1;i++)
+        {
+            MiddleLinePoint[i][0] = (LeftLinePoint[LeftLine_StartY - i][0] + RightLinePoint[RightLine_StartY - i][0]) / 2;
+            MiddleLinePoint[i][1] = (LeftLinePoint[LeftLine_StartY - i][1] + RightLinePoint[RightLine_StartY - i][1]) / 2;
+        }
+    }
+    else
+    {
+        for (i = 0;i < RightLine_StartY + 1;i++)
+        {
+            MiddleLinePoint[i][0] = (LeftLinePoint[LeftLine_StartY - i][0] + RightLinePoint[RightLine_StartY - i][0]) / 2;
+            MiddleLinePoint[i][1] = (LeftLinePoint[LeftLine_StartY - i][1] + RightLinePoint[RightLine_StartY - i][1]) / 2;
+        }
     }
 }
 
@@ -395,7 +461,7 @@ void Image_Process(void)
 
     #endif
 
-    DrawPixelChart(GrayImageArray[0], GrayImage_Wide * GrayImage_Height, PixelValueNum);                        //转换成灰度直方图
+    DrawPixelChart(GrayImageArray, GrayImage_Wide * GrayImage_Height, PixelValueNum);                        //转换成灰度直方图
     ImageThreshold = Otsu_GetThreshold(PixelValueNum, GrayImage_Wide * GrayImage_Height);                    //获取大津法阈值
     ImageBinaryzation(GrayImageArray,ImageThreshold,mt9v03x_image_Compress);                              //二值化（占用很多帧率，看看还能不能优化）
     //ErosionFilter(mt9v03x_image_Compress);                                                              //八邻域腐蚀滤波
@@ -405,11 +471,12 @@ void Image_Process(void)
     //显示二值化图像，这个不用动了，是为了跟最大的分辨率区分，除非也有溢出tft的显示区域再加
     #if CompressImage    
     
-        tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayImage_Wide, GrayImage_Height, 0);
+        if (TFT_State)
+            tft180_show_gray_image(0, 0, mt9v03x_image_Compress, GrayImage_Wide, GrayImage_Height, GrayImage_Wide, GrayImage_Height, 0);
         
     #else
 
-        tft180_show_gray_image(0, 0, mt9v03x_image_Compress[0], GrayImage_Wide, GrayImage_Height, GrayImage_Wide / 2, GrayImage_Height / 2, 0);
+        tft180_show_gray_image(0, 0, mt9v03x_image_Compress, GrayImage_Wide, GrayImage_Height, GrayImage_Wide / 2, GrayImage_Height / 2, 0);
 
     #endif        
 
@@ -434,16 +501,19 @@ void Image_Process(void)
     */
    
     //显示左右边界及中线
-    for (Temp = 0;Temp < PointNum;Temp++)
+    if (TFT_State)
     {
-        tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
-        //tft180_draw_point((uint16)LeftLinePoint[Temp][0] - 1,(uint16)LeftLinePoint[Temp][1],RGB565_RED);
+        for (Temp = 0;Temp < PointNum;Temp++)
+        {
+            tft180_draw_point((uint16)LeftLinePoint[Temp][0],(uint16)LeftLinePoint[Temp][1],RGB565_RED);
+            //tft180_draw_point((uint16)LeftLinePoint[Temp][0] - 1,(uint16)LeftLinePoint[Temp][1],RGB565_RED);
 
-        tft180_draw_point((uint16)RightLinePoint[Temp][0],(uint16)RightLinePoint[Temp][1],RGB565_RED);
-        //tft180_draw_point((uint16)RightLinePoint[Temp][0] + 1,(uint16)RightLinePoint[Temp][1],RGB565_RED);
+            tft180_draw_point((uint16)RightLinePoint[Temp][0],(uint16)RightLinePoint[Temp][1],RGB565_RED);
+            //tft180_draw_point((uint16)RightLinePoint[Temp][0] + 1,(uint16)RightLinePoint[Temp][1],RGB565_RED);
 
-        tft180_draw_point((uint16)MiddleLinePoint[Temp][0],(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW);
-        tft180_draw_point((uint16)MiddleLinePoint[Temp][0] + 1,(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW);
-        //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
+            tft180_draw_point((uint16)MiddleLinePoint[Temp][0],(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW);
+            tft180_draw_point((uint16)MiddleLinePoint[Temp][0] + 1,(uint16)MiddleLinePoint[Temp][1],RGB565_YELLOW);
+            //mt9v03x_image_Compress[LeftLinePoint[Temp][0]][LeftLinePoint[Temp][1]] = 128;
+        }
     }
 }

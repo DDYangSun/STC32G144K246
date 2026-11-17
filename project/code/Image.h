@@ -36,6 +36,6 @@ void Image_Init(void);
 void Image_Process(void);
 
 extern int16 MiddleLinePoint[PointNum][2];
-
+extern uint8 TFT_State;
 
 #endif

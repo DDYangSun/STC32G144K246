@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               16/11/26  22:42:38  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               17/11/26  22:05:37  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -22,29 +22,31 @@ stmt  level    source
    10   1          debug_init();                                   // 调试串口信息初始化
    11   1          Hardware_Init();
    12   1      
-   13   1          while(1)
-   14   1          {
-   15   2              Key_Process();                              //按键控制
-   16   2              Servo_Process();                            //角度环PID舵机控制
-   17   2      
-   18   2              TFT_ShowFPS();                              //TFT显示帧率
-   19   2              TFT_ShowData();                 //TFT显示其他数据
-   20   2      
-   21   2              if (mt9v03x_finish_flag)
-   22   2              {
-   23   3                  Image_Process();                        //图像处理
-   24   3                  mt9v03x_finish_flag = 0;
-   25   3                  FPS++;
-   26   3              }
-   27   2          }
-   28   1      }
-   29          
+   13   1          TFT_State = 0;                                  //控制是否显示图像
+   14   1      
+   15   1          while(1)
+   16   1          {
+   17   2              Key_Process();                              //按键控制
+   18   2              Servo_Process();                            //角度环PID舵机控制
+   19   2      
+   20   2              TFT_ShowFPS();                              //TFT显示帧率
+   21   2              TFT_ShowData();             //TFT显示其他数据
+   22   2      
+   23   2              if (mt9v03x_finish_flag)
+   24   2              {
+   25   3                  Image_Process();                        //图像处理
+   26   3                  mt9v03x_finish_flag = 0;
+   27   3                  FPS++;
+   28   3              }
+   29   2          }
+   30   1      }
+   31          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =    ------     ------
-  ecode size           =       118     ------
+  ecode size           =       123     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------

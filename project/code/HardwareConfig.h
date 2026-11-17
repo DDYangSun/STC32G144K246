@@ -5,8 +5,7 @@ void pit_TIM0(void);
 
 extern uint16 FPS;
 extern uint8 FPS_Flag;
-extern uint8 TIM0_ShowTFT;
-
+extern uint8 TIM0_ShowTFTData;
 
 void Hardware_Init(void);
 void TFT_ShowFPS(void);
